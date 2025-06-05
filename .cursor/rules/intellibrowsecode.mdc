@@ -1,0 +1,151 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+source_folder: src
+memory_bank_folder:memory_bank
+requirement_file: requirements.txt (must be in project root)
+gitignore_file: .gitignore (must be in project root)
+
+memory_bank:
+  - Intialize and use memory-bank to retain and recall implementation context across iterations.
+
+lifecycle_stages:
+  - VAN: Initialize project and determine complexity
+  - PLAN: Create detailed implementation plan
+  - CREATIVE: Explore design options for complex components
+  - IMPLEMENT: Systematically build planned components
+  - REFLECT: Review and document lessons learned
+  - ARCHIVE: Create comprehensive documentation
+
+resume_protocol:
+  - RESUME: Resume the IntelliBrowse development process from the last valid state.
+  - 🛠️ Context: The previous implementation may have stopped due to a Cursor limitation (25 tool calls), crash, or error.
+  - 🎯 Action Required:
+    - Inspect the current project structure, memory bank, and previous tool outputs to identify:
+      - ✅ Completed items
+      - ⏳ Partially completed items
+      - ⚠️ Missing or skipped components
+    - Resume implementation only for items not yet completed.
+    - Do not regenerate any component that is already valid and complete.
+    - Reuse previously defined architecture, prompts, and folder structures.
+  - 🔁 While resuming:
+    - Use any saved state, cached memory, or identifiable work-in-progress to determine safe resume points.
+    - Re-parse attached rules from Cursor’s Features > Settings and apply:
+      - Global rules
+      - Project rules
+      - System and architectural patterns
+      - Design and integration best practices (modularity, SRP, DRY)
+    - Refer to previously provided documents like `projectbrief.md`, `techContext.md`, etc.
+  - 🧠 MANDATORY:
+    - After resuming and before concluding this prompt, update the memory bank/progress document with:
+      - ✅ Completed sections (just implemented or confirmed done)
+      - ⏳ Items partially completed or deferred
+      - ⚠️ Skipped or errored components (mention if any are impacted by Cursor tool call limits)
+    - ✅ Confirm completion and leave a comment in the memory/progress update stating:
+      - *Resume checkpoint saved after X of Y tool calls executed. Remaining tasks queued.*
+
+general_principles:
+  - Enforce scalable, secure, and maintainable architecture across frontend and backend.
+  - Adhere to SOLID, DRY, and KISS principles.
+  - Embrace Clean Code and Clean Architecture principles.
+  - Modularize all logic for maintainability and unit testing.
+  - Use consistent naming conventions for classes, methods, and variables.
+  - All code must include logging, structured error handling, and fallback mechanisms.
+
+venv_usage:
+  - Always create a Python virtual environment using: `python3 -m venv .venv`
+  - Always activate the virtual environment using: `source .venv/bin/activate`
+  - Always use the Bash terminal in Cursor AI for executing shell commands to ensure compatibility.
+
+port_handling:
+  - Before starting the backend or frontend servers, check for and terminate existing processes on ports `8000` and `3000`:
+    ```bash
+    lsof -i :8000 -t | xargs -r kill -9
+    lsof -i :3000 -t | xargs -r kill -9
+    ```
+
+start_commands:
+  backend: `uvicorn src.backend.main:app --reload --host=127.0.0.1 --port=8000`
+  frontend: `npm start` or `yarn start`
+
+verify_services:
+  - API Documentation: http://localhost:8000/docs
+  - Health Check: http://localhost:8000/health
+
+temporary_scripts:
+  directory: tests/scripts/
+  rules:
+    - Script files must follow the naming convention: `tmp_<purpose>_script.py` or `.sh`
+    - Scripts should not be imported or used in production code.
+    - A `README.md` must exist in `tests/scripts/` describing the purpose and usage of each script.
+
+backend:
+  language: python
+  framework: fastapi
+  rules:
+    - Organize by clean-layered structure: routes/, controllers/, services/, schemas/, models/, utils/.
+    - Routes delegate to controllers, controllers invoke services, services implement business logic.
+    - Use dependency injection via FastAPI `Depends()`.
+    - Enforce async/await for all IO operations.
+    - All input/output schemas must use Pydantic and be versioned.
+    - Route responses must use `response_model` and follow standardized structure: success, data, message.
+    - Use environment variables via `python-dotenv`. No hardcoded credentials.
+    - Exception handlers must catch and log all errors gracefully.
+
+frontend:
+  language: typescript
+  framework: react
+  rules:
+    - Use functional components and React Hooks.
+    - Type all components and props using TypeScript.
+    - Organize structure as: features/, components/, hooks/, services/, utils/.
+    - Use TailwindCSS or CSS Modules. Avoid inline styles.
+    - Centralize API calls using Axios service layer.
+    - Use React Hook Form + Yup for form validation.
+    - Responsive design is mandatory — use Tailwind's grid/flex utilities.
+    - All components must be tested using Jest and React Testing Library.
+    - Prefer Zustand or Redux over prop drilling.
+
+html_css_js:
+  rules:
+    - Use semantic HTML tags (<header>, <main>, <section>, etc.).
+    - Avoid global styles. Scope CSS to components.
+    - JavaScript must follow ES6+ syntax.
+    - Avoid jQuery or direct DOM manipulations.
+    - Use ARIA roles and keyboard navigation support for accessibility.
+    - Avoid `!important` in CSS and ensure proper specificity.
+
+clean_code:
+  class_rules:
+    - Class names must be PascalCase and represent a single responsibility.
+    - One class = one clear responsibility (SRP).
+    - Avoid God classes — extract logic into services/helpers.
+
+  method_rules:
+    - Use camelCase for methods.
+    - Methods should do one thing only.
+    - Max method size: 30 lines. Refactor otherwise.
+    - Input validation, business logic, and output transformation must be separate.
+
+  variable_rules:
+    - Use descriptive, intention-revealing names.
+    - Avoid meaningless names like `data`, `info`, `tmp`.
+    - Follow snake_case for Python and camelCase for JS/TS.
+    - No single-letter variables unless for indices in small scopes.
+
+  dry_principles:
+    - Eliminate duplicate logic across modules.
+    - Reuse components, hooks, utilities, and services wherever possible.
+    - Use shared modules for validation, error responses, and schema transforms.
+
+infrastructure:
+  rules:
+    - Secrets managed via environment variables or vaults.
+    - Linting: `flake8` for Python, `eslint` for React.
+    - Formatting: `black + isort` (Python), `prettier` (React).
+    - All APIs should require authentication and rate limiting.
+    - Testing pyramid: unit > integration > e2e.
+    - Commit messages must follow [Conventional Commits](mdc:https:/www.conventionalcommits.org) (https://www.conventionalcommits.org/).
+

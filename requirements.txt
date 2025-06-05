@@ -1,0 +1,40 @@
+# IntelliBrowse Python Dependencies
+# Core FastAPI backend dependencies for Backend Foundation milestone
+
+# FastAPI ecosystem
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.6.0
+python-dotenv==1.0.1
+
+# Logging and utilities  
+loguru==0.7.2
+
+# System monitoring
+psutil==6.1.0
+
+# CORS middleware
+fastapi-cors>=0.0.6
+
+# Authentication and Security Dependencies
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.12
+
+# Database Dependencies
+motor==3.6.0
+pymongo==4.10.1
+
+# Validation
+email-validator==2.2.0
+
+# Development dependencies
+pytest==8.3.3
+pytest-asyncio==0.24.0
+black==25.1.0
+flake8==7.1.1
+isort==6.0.1
+
+# Additional backend utilities (for future use)
+# httpx>=0.25.0           # For external API calls 
