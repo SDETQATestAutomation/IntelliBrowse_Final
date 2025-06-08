@@ -33,7 +33,7 @@ logger = get_logger(__name__)
 
 # Create router with prefix and tags
 router = APIRouter(
-    prefix="/api/v1/testcases",
+    prefix="/testcases",
     tags=["Test Cases"],
     responses={
         401: {"description": "Unauthorized - Invalid or missing authentication"},

@@ -90,6 +90,39 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Failed to initialize test suite indexes: {e}")
             # Don't fail startup for index issues
         
+        # Initialize test case indexes for optimal performance
+        try:
+            from .testcases.models.test_case_model import TestCaseModelOperations
+            # Get MongoDB client from database service
+            mongo_client = db_service.client
+            await TestCaseModelOperations.ensure_indexes(mongo_client)
+            logger.info("Test case collection indexes initialized successfully")
+        except Exception as e:
+            logger.warning(f"Failed to initialize test case indexes: {e}")
+            # Don't fail startup for index issues
+        
+        # Initialize test execution indexes for optimal performance
+        try:
+            from .testexecution.models.execution_trace_model import ExecutionTraceModelOperations
+            # Get MongoDB client from database service
+            mongo_client = db_service.client
+            await ExecutionTraceModelOperations.ensure_indexes(mongo_client)
+            logger.info("Test execution collection indexes initialized successfully")
+        except Exception as e:
+            logger.warning(f"Failed to initialize test execution indexes: {e}")
+            # Don't fail startup for index issues
+        
+        # Initialize notification indexes for optimal performance - PHASE 6 INTEGRATION
+        try:
+            from .notification.utils.mongodb_setup import ensure_notification_indexes
+            # Get MongoDB client from database service  
+            mongo_client = db_service.client
+            await ensure_notification_indexes(mongo_client)
+            logger.info("Notification collection indexes initialized successfully")
+        except Exception as e:
+            logger.warning(f"Failed to initialize notification indexes: {e}")
+            # Don't fail startup for index issues
+        
     except Exception as e:
         logger.error(f"Failed to initialize database connection: {str(e)}")
         # Don't fail startup for database issues (allow app to start)
@@ -347,6 +380,42 @@ def configure_routes(app: FastAPI) -> None:
         logger.info(f"Test suite routes configured with prefix: {settings.api_prefix}/suites")
     except Exception as e:
         logger.error(f"Failed to configure test suite routes: {e}")
+        # Don't fail startup for route configuration issues
+    
+    # Include test case router with API prefix
+    try:
+        from .testcases.routes.test_case_routes import router as test_case_router
+        app.include_router(test_case_router, prefix=settings.api_prefix)
+        logger.info(f"Test case routes configured with prefix: {settings.api_prefix}/testcases")
+    except Exception as e:
+        logger.error(f"Failed to configure test case routes: {e}")
+        # Don't fail startup for route configuration issues
+    
+    # Include test execution router with API prefix
+    try:
+        from .testexecution.routes.execution_routes import router as execution_router
+        app.include_router(execution_router, prefix=settings.api_prefix)
+        logger.info(f"Test execution routes configured with prefix: {settings.api_prefix}/executions")
+    except Exception as e:
+        logger.error(f"Failed to configure test execution routes: {e}")
+        # Don't fail startup for route configuration issues
+    
+    # Include execution reporting router with API prefix
+    try:
+        from .executionreporting.routes.execution_reporting_routes import router as reporting_router
+        app.include_router(reporting_router, prefix=settings.api_prefix)
+        logger.info(f"Execution reporting routes configured with prefix: {settings.api_prefix}/execution-reporting")
+    except Exception as e:
+        logger.error(f"Failed to configure execution reporting routes: {e}")
+        # Don't fail startup for route configuration issues
+
+    # Include notification router with API prefix - PHASE 6 INTEGRATION
+    try:
+        from .notification.routes.notification_routes import router as notification_router
+        app.include_router(notification_router, prefix=settings.api_prefix)
+        logger.info(f"Notification routes configured with prefix: {settings.api_prefix}/notifications")
+    except Exception as e:
+        logger.error(f"Failed to configure notification routes: {e}")
         # Don't fail startup for route configuration issues
 
 

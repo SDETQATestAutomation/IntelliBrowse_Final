@@ -1,349 +1,358 @@
-# IntelliBrowse - Test Case Management
+# IntelliBrowse Development Task Management
 
-## Current Task: Test Case Management System
-**Started**: VAN Mode - Complexity Determination and Foundation Assessment  
-**Complexity Level**: Level 3 (Intermediate Feature) ✅ DETERMINED  
-**Focus Area**: `src/backend/testcases/` module creation  
-**Status**: 🤔 REFLECT MODE IN PROGRESS - Implementation Review Complete
+## Current Project Status
+- **Project**: IntelliBrowse - Intelligent Test Management Platform
+- **Current Module**: AI Execution Foundation (Model Context Protocol)
+- **Phase**: ✅ VAN Phase COMPLETE → 📋 PLAN Phase COMPLETE
+- **Subphase**: Level 4 Implementation Plan COMPLETE
+- **Level**: Level 4 (Complex System - Confirmed)
+- **Status**: ✅ PLAN Phase COMPLETE - CREATIVE Mode Required
 
-## Task Description
-Implement Test Case Management system to enable atomic, reusable, testable units — distinct from raw test items or high-level test suites — following clean architecture and modular backend design. TheTestCase will act as an atomic entity within the automation framework to support structured test design, tagging, assignment, and lifecycle states (draft, active, deprecated).
+## 📋 [SYS-AI-MCP]: MCP-Based AI Foundation System - PLAN COMPLETE
 
-## VAN Phase Results ✅ COMPLETED
+### System Overview
+- **Purpose**: Enterprise-grade foundational architecture for integrating all AI capabilities into IntelliBrowse exclusively through the Model Context Protocol (MCP)
+- **Architectural Alignment**: Fully compliant with IntelliBrowse's modular, async, validated, and secured backend design principles
+- **Status**: Planning Complete - Ready for CREATIVE Phase
+- **Milestones**: 
+  - ✅ VAN Analysis Complete: 2025-01-08 04:15:00 UTC
+  - ✅ PLAN Analysis Complete: 2025-01-08 04:45:00 UTC
+  - ⏳ CREATIVE Phase Start: Next
+  - ⏳ Tool Architecture Design: TBD
+  - ⏳ Prompt Strategy Design: TBD
+  - ⏳ Implementation Phase: TBD
 
-### ✅ Memory Bank Status Check COMPLETED
-- **Current State**: All core memory bank files verified and updated
-- **Previous Task**: Test Suite & Test Case Management successfully archived
-- **Foundation**: Complete backend API infrastructure available
-- **Development Environment**: Production-ready with comprehensive patterns
+### Technology Stack
+- **Framework**: FastAPI with MCP Python SDK integration
+- **Protocol**: Model Context Protocol (MCP) - latest stable release
+- **AI Backend**: OpenAI API via MCP tool execution
+- **Browser Automation**: Playwright via MCP tools
+- **Language**: Python 3.9+ with async/await patterns
+- **Validation**: Pydantic v2 for all schemas
+- **Storage**: MongoDB integration for execution context
 
-### ✅ Foundation Assessment COMPLETED
+### Technology Validation Checkpoints
+- [x] MCP Python SDK availability verified
+- [x] FastAPI integration patterns confirmed
+- [x] OpenAI API compatibility validated
+- [x] Playwright integration approach confirmed
+- [x] Pydantic v2 schema validation verified
+- [x] MongoDB async patterns established
+- [ ] MCP client factory proof of concept
+- [ ] Tool registry hello world implementation
+- [ ] OpenAI via MCP test execution
+- [ ] End-to-end tool invocation test
 
-#### Available Infrastructure:
-- [x] **Backend Architecture**: Clean layered structure (routes → controllers → services → models) ✅
-- [x] **Database Layer**: MongoDB with Motor async client and strategic indexing ✅
-- [x] **BaseMongoModel Pattern**: Advanced timestamp, versioning, and datetime handling ✅
-- [x] **Authentication System**: JWT-based security with user context ✅
-- [x] **Index Management**: Automated index creation with startup integration ✅
-- [x] **Response Patterns**: Flexible API response construction with field inclusion ✅
+### Components
 
-#### Existing Integration Points:
-- [x] **Test Item System**: Multi-test type support (GENERIC, BDD, MANUAL) with advanced CRUD ✅
-- [x] **Test Suite System**: Suite management with bulk operations and embedded items ✅
-- [x] **User Management**: Authentication and user-scoped access control ✅
+#### [COMP-MCP-ADAPTER]: MCP SDK Integration Layer
+- **Purpose**: Core MCP protocol integration with client management and tool execution
+- **Status**: Planning Complete - Architecture Design Required
+- **Dependencies**: MCP Python SDK, OpenAI integration
+- **Responsible**: Backend development team
 
-### ✅ Complexity Determination COMPLETED
+##### [FEAT-MCP-CLIENT]: MCP Client Factory & Management
+- **Description**: Singleton MCP client factory with connection pooling and lifecycle management
+- **Status**: Planning Complete - Design Required (CREATIVE)
+- **Priority**: Critical
+- **Related Requirements**: [REQ-MCP-001, REQ-PERF-001]
+- **Quality Criteria**: 99% uptime, <100ms client creation, resource cleanup
+- **Progress**: 0%
 
-#### Complexity Level: **LEVEL 3 (Intermediate Feature)**
+###### [TASK-MCP-CLIENT-001]: Implement MCPClientFactory Singleton
+- **Description**: Create singleton factory for MCP client management with connection pooling
+- **Status**: TODO
+- **Assigned To**: TBD
+- **Estimated Effort**: 8 hours
+- **Actual Effort**: TBD
+- **Dependencies**: [TASK-MCP-SDK-001]
+- **Blocks**: [TASK-MCP-TOOLS-001]
+- **Risk Assessment**: Medium - MCP SDK stability
+- **Quality Gates**: Unit tests, integration tests, performance benchmarks
+- **Implementation Notes**: Use async context managers, implement proper cleanup
 
-**Rationale:**
-- **Multi-Component System**: Requires all 5 backend layers (model, API, service, controller, schema)
-- **Architectural Planning**: Multiple design decisions for relationships and data patterns
-- **Integration Complexity**: Links with existing TestSuite and TestItem systems
-- **Performance Design**: Index strategy and query optimization requirements
-- **Business Logic**: Lifecycle management, validation, and access control implementation
+**Subtasks**:
+- [ ] [SUB-MCP-CLIENT-001]: Design singleton pattern with async support - TODO
+- [ ] [SUB-MCP-CLIENT-002]: Implement connection pooling mechanism - TODO
+- [ ] [SUB-MCP-CLIENT-003]: Add client lifecycle management - TODO
+- [ ] [SUB-MCP-CLIENT-004]: Create configuration management - TODO
 
-## 📋 PLAN Phase Results ✅ COMPREHENSIVE PLAN
+##### [FEAT-MCP-TOOLS]: Tool Registry & Discovery
+- **Description**: Dynamic tool discovery, registration, and invocation system
+- **Status**: Planning Complete - Architecture Design Required (CREATIVE)
+- **Priority**: Critical
+- **Related Requirements**: [REQ-MCP-002, REQ-TOOL-001]
+- **Quality Criteria**: Support 20+ tools, <50ms tool lookup, dynamic refresh
+- **Progress**: 0%
 
-### Requirements Analysis ✅ COMPLETED
+###### [TASK-MCP-TOOLS-001]: Implement PromptToolRegistry
+- **Description**: Create dynamic tool registry with caching and background refresh
+- **Status**: TODO
+- **Assigned To**: TBD
+- **Estimated Effort**: 12 hours
+- **Actual Effort**: TBD
+- **Dependencies**: [TASK-MCP-CLIENT-001]
+- **Blocks**: [TASK-MCP-INVOKE-001]
+- **Risk Assessment**: Medium - Tool schema evolution
+- **Quality Gates**: Tool discovery tests, cache validation, performance metrics
+- **Implementation Notes**: 5-minute refresh intervals, schema validation
 
-#### Core Requirements:
-- [x] **Test Case CRUD Operations**: Create, read, update, delete test cases with full lifecycle management
-- [x] **Case Metadata Management**: Title, description, steps, expected_result, tags, test_type, status, priority
-- [x] **Lifecycle States**: Draft → Active → Deprecated → Archived with status transition validation
-- [x] **Owner-Based Access Control**: Test cases scoped to creating user with proper authorization
-- [x] **Advanced Filtering & Search**: Filter by owner, tags, status, priority, test_type, created_at
-- [x] **Integration with Test Items**: Reference relationship for step reuse and execution logic
-- [x] **Integration with Test Suites**: Support for test case inclusion in multiple suites
+**Subtasks**:
+- [ ] [SUB-MCP-TOOLS-001]: Design tool registry architecture - TODO
+- [ ] [SUB-MCP-TOOLS-002]: Implement tool schema caching - TODO
+- [ ] [SUB-MCP-TOOLS-003]: Add background refresh mechanism - TODO
+- [ ] [SUB-MCP-TOOLS-004]: Create tool availability tracking - TODO
 
-#### Extended Requirements:
-- [x] **Step Management**: Structured test steps with preconditions, actions, postconditions
-- [x] **Version History**: Track changes to test cases for audit trail and rollback capability
-- [x] **Bulk Operations**: Bulk create, update, status changes, tag management
-- [x] **Performance Optimization**: Fast queries with proper MongoDB indexing strategy
-- [x] **Validation Framework**: Business rule enforcement, circular dependency prevention
-- [x] **Attachment Support**: Optional file attachments and external references
+##### [FEAT-MCP-INVOKE]: Tool Invocation Service
+- **Description**: Core tool execution with retry logic, error handling, and result processing
+- **Status**: Planning Complete - Error Handling Strategy Required (CREATIVE)
+- **Priority**: Critical
+- **Related Requirements**: [REQ-MCP-003, REQ-RETRY-001]
+- **Quality Criteria**: 3-attempt retry, <30s timeout, 95% success rate
+- **Progress**: 0%
 
-#### Technical Constraints:
-- [x] **Authentication Required**: All endpoints require valid JWT tokens
-- [x] **MongoDB Integration**: Use existing Motor async client and BaseMongoModel patterns
-- [x] **Schema Versioning**: Extensible Pydantic models for future growth with migration support
-- [x] **Response Format**: Follow established BaseResponse patterns with field inclusion control
-- [x] **Clean Architecture**: Maintain routes → controllers → services → models pattern
-- [x] **Performance Targets**: <100ms list queries, <50ms single retrieval, <200ms complex operations
+###### [TASK-MCP-INVOKE-001]: Implement ToolInvocationService
+- **Description**: Single async entrypoint with retry logic and structured error handling
+- **Status**: TODO
+- **Assigned To**: TBD
+- **Estimated Effort**: 16 hours
+- **Actual Effort**: TBD
+- **Dependencies**: [TASK-MCP-TOOLS-001]
+- **Blocks**: [TASK-AI-SERVICES-001]
+- **Risk Assessment**: High - AI response reliability
+- **Quality Gates**: Retry tests, timeout handling, error classification
+- **Implementation Notes**: Exponential backoff, trace ID generation
 
-## 🎨 CREATIVE Phase Results ✅ COMPLETED
+**Subtasks**:
+- [ ] [SUB-MCP-INVOKE-001]: Design invocation interface - TODO
+- [ ] [SUB-MCP-INVOKE-002]: Implement retry logic with exponential backoff - TODO
+- [ ] [SUB-MCP-INVOKE-003]: Add structured error handling - TODO
+- [ ] [SUB-MCP-INVOKE-004]: Create result processing pipeline - TODO
 
-### ✅ Architectural Decisions Finalized:
+#### [COMP-PROMPT-ORCH]: Prompt Orchestration System
+- **Purpose**: Template management, context injection, and prompt optimization
+- **Status**: Planning Complete - Template Strategy Required (CREATIVE)
+- **Dependencies**: MCP tool registry, context management
+- **Responsible**: AI/Backend development team
 
-#### **1. ✅ Flexible Step Schema Architecture**
-**Selected Approach**: Unified Embedded Schema with Type-Aware Validation
-- **Implementation**: Single TestCaseStep model with optional fields for different test types
-- **Benefits**: Optimal query performance with embedded storage, type flexibility through validation
-- **Pattern**: Type-aware validation services handle GENERIC, BDD, MANUAL variations
+##### [FEAT-PROMPT-TEMPLATES]: Template Management System
+- **Description**: Modular prompt templates with dynamic context injection
+- **Status**: Planning Complete - Template Architecture Required (CREATIVE)
+- **Priority**: High
+- **Related Requirements**: [REQ-PROMPT-001, REQ-CONTEXT-001]
+- **Quality Criteria**: 10+ templates, context validation, version management
+- **Progress**: 0%
 
-#### **2. ✅ Intelligent Tagging Engine**
-**Selected Approach**: Hybrid Tag Index with Normalization
-- **Implementation**: Embedded tags in TestCase + separate TagIndex collection for intelligence
-- **Benefits**: Fast queries with embedded tags, smart features through tag index
-- **Features**: Auto-complete, normalization, usage tracking, fuzzy matching
+##### [FEAT-CONTEXT-INJECT]: Context Injection Engine
+- **Description**: Dynamic context injection with validation and optimization
+- **Status**: Planning Complete - Context Strategy Required (CREATIVE)
+- **Priority**: High
+- **Related Requirements**: [REQ-CONTEXT-002, REQ-VALID-001]
+- **Quality Criteria**: Context validation, size optimization, security filtering
+- **Progress**: 0%
 
-#### **3. ✅ Step Linking & Reuse Validation**
-**Selected Approach**: Deep Validation Graph with Circular Detection
-- **Implementation**: DFS-based cycle detection with ownership validation
-- **Benefits**: Comprehensive reference integrity, prevents data corruption
-- **Performance**: Optimized with graph caching and efficient algorithms
+#### [COMP-AI-EXECUTOR]: AI Execution Orchestration
+- **Purpose**: Async AI task orchestration with monitoring and result processing
+- **Status**: Planning Complete - Orchestration Pattern Required (CREATIVE)
+- **Dependencies**: MCP adapter, prompt orchestrator
+- **Responsible**: Backend development team
 
-## 🏗️ BUILD Phase Progress - COMPLETED
+##### [FEAT-EXEC-ENGINE]: Execution Engine
+- **Description**: Main orchestration service for AI task coordination
+- **Status**: Planning Complete - Orchestration Design Required (CREATIVE)
+- **Priority**: Critical
+- **Related Requirements**: [REQ-EXEC-001, REQ-ASYNC-001]
+- **Quality Criteria**: Async execution, task queuing, result aggregation
+- **Progress**: 0%
 
-### ✅ Phase 1: Model Layer COMPLETED
-**Status**: ✅ COMPLETE - All models implemented and verified
-**Files Created**:
-- ✅ `src/backend/testcases/models/__init__.py` - Package exports
-- ✅ `src/backend/testcases/models/test_case_model.py` - Complete model implementation
+##### [FEAT-TASK-MANAGER]: Task Management
+- **Description**: AI task queue with prioritization and resource allocation
+- **Status**: Planning Complete - Queue Strategy Required (CREATIVE)
+- **Priority**: High
+- **Related Requirements**: [REQ-QUEUE-001, REQ-PRIOR-001]
+- **Quality Criteria**: Priority queuing, resource limits, task tracking
+- **Progress**: 0%
 
-**Implementation Details**:
-- ✅ **TestCaseModel**: Main MongoDB document model with embedded steps
-- ✅ **TestCaseStep**: Unified step schema with type-aware validation
-- ✅ **BaseMongoModel**: Extended with UTC timestamps and serialization
-- ✅ **Enums**: TestCaseStatus, TestCasePriority, StepType, StepFormatHint
-- ✅ **AttachmentRef**: File reference model
-- ✅ **TestCaseModelOperations**: Index management and validation schemas
-- ✅ **6-Index Strategy**: Optimized MongoDB indexing for performance
-- ✅ **Validation Framework**: Comprehensive field validation and business rules
-- ✅ **Model Verification**: Import and instantiation testing successful
+#### [COMP-SCHEMAS]: Pydantic Schema Architecture
+- **Purpose**: Comprehensive schema validation for all MCP interactions
+- **Status**: Planning Complete - Schema Design Required
+- **Dependencies**: MCP tool specifications
+- **Responsible**: Backend development team
 
-### ✅ Phase 2: Schema Layer COMPLETED
-**Status**: ✅ COMPLETE - All schemas implemented and verified
-**Files Created**:
-- ✅ `src/backend/testcases/schemas/__init__.py` - Package exports
-- ✅ `src/backend/testcases/schemas/test_case_schemas.py` - Complete schema implementation
+##### [FEAT-TOOL-SCHEMAS]: MCP Tool Schemas
+- **Description**: Input/output schemas for all MCP tool interactions
+- **Status**: Planning Complete - Ready for Implementation
+- **Priority**: High
+- **Related Requirements**: [REQ-SCHEMA-001, REQ-VALID-002]
+- **Quality Criteria**: 100% coverage, validation performance, error clarity
+- **Progress**: 0%
 
-**Implementation Details**:
-- ✅ **Request Schemas**: CreateTestCaseRequest, UpdateTestCaseRequest, FilterTestCasesRequest, etc.
-- ✅ **Response Schemas**: TestCaseResponse, TestCaseListResponse, TestCaseStatsResponse
-- ✅ **Flexible Field Inclusion**: Core + optional detailed fields for performance optimization
-- ✅ **Pagination Support**: PaginationMeta, FilterMeta, SortMeta
-- ✅ **Validation**: Custom field validators and business rule enforcement
-- ✅ **Type Safety**: Comprehensive typing with examples and documentation
-- ✅ **Schema Verification**: Import and instantiation testing successful
+#### [COMP-SERVICES]: AI-Aware Service Layer
+- **Purpose**: High-level AI services for scenario generation, step synthesis, and debugging
+- **Status**: Planning Complete - Service Architecture Required
+- **Dependencies**: AI executor, schemas
+- **Responsible**: AI/Backend development team
 
-### ✅ Phase 3: Service Layer COMPLETED
-**Status**: ✅ COMPLETE - All services implemented and verified
-**Files Created**:
-- ✅ `src/backend/testcases/services/__init__.py` - Package exports ✅ CREATED
-- ✅ `src/backend/testcases/services/test_case_service.py` - Complete service implementation ✅ COMPLETED
+##### [FEAT-SCENARIO-SERVICE]: Scenario Generation Service
+- **Description**: Test scenario generation from intent and business context
+- **Status**: Planning Complete - Ready for Implementation
+- **Priority**: High
+- **Related Requirements**: [REQ-SCENARIO-001, REQ-BDD-001]
+- **Quality Criteria**: Scenario quality, generation speed, template compliance
+- **Progress**: 0%
 
-**Implementation Details**:
-- ✅ **TestCaseService**: Main business logic service with full async CRUD operations
-- ✅ **TestCaseValidationService**: Deep validation with DFS-based cycle detection for step references
-- ✅ **TestCaseTagService**: Intelligent tagging with normalization, auto-complete, and usage tracking
-- ✅ **TestCaseResponseBuilder**: Flexible response construction with field inclusion control
-- ✅ **Async Operations**: All I/O operations use async/await patterns for performance
-- ✅ **Validation Logic**: 
-  - Title uniqueness per user validation
-  - Type-aware step validation (GENERIC, BDD, MANUAL)
-  - Circular dependency detection for test item references
-  - Business rule enforcement
-- ✅ **Tag Intelligence**:
-  - Tag normalization (lowercase, trimming, deduplication)
-  - Auto-suggestion with prefix matching
-  - Usage tracking in tag index collection
-  - Popular tags retrieval
-- ✅ **Response Optimization**:
-  - Core data always included (performance)
-  - Optional detailed fields (steps, statistics, references)
-  - Computed statistics (execution time estimation, automation readiness)
-  - Flexible field inclusion based on request parameters
-- ✅ **Performance Features**:
-  - Dependency injection pattern
-  - Database connection pooling
-  - Query optimization with proper indexing
-  - Pagination support for large datasets
-  - <100ms response time targets achieved
-- ✅ **Observability**:
-  - Structured logging for all operations
-  - Performance timing metrics
-  - Error tracking and handling
-  - Service initialization verification
+##### [FEAT-SELECTOR-SERVICE]: Selector Management Service
+- **Description**: DOM selector management and healing capabilities
+- **Status**: Planning Complete - Ready for Implementation
+- **Priority**: High
+- **Related Requirements**: [REQ-SELECTOR-001, REQ-HEAL-001]
+- **Quality Criteria**: Selector reliability, healing success rate, performance
+- **Progress**: 0%
 
-### ✅ Phase 4: Controller Layer COMPLETED
-**Status**: ✅ COMPLETE - HTTP orchestration layer implemented and verified
-**Files Created**:
-- ✅ `src/backend/testcases/controllers/__init__.py` - Package exports ✅ CREATED
-- ✅ `src/backend/testcases/controllers/test_case_controller.py` - Complete controller implementation ✅ COMPLETED
+#### [COMP-CONTROLLERS]: FastAPI Integration Layer
+- **Purpose**: RESTful API endpoints for AI execution services
+- **Status**: Planning Complete - Ready for Implementation
+- **Dependencies**: Services layer, authentication
+- **Responsible**: Backend development team
 
-**Implementation Details**:
-- ✅ **TestCaseController**: HTTP request/response orchestration with comprehensive error handling
-- ✅ **Authentication Integration**: User context handling with JWT validation
-- ✅ **Request Processing**: Proper validation and transformation of HTTP requests
-- ✅ **Response Formatting**: Consistent response structure with BaseResponse patterns
-- ✅ **Core Handler Methods**:
-  - `create_test_case()` - Handle test case creation with validation
-  - `get_test_case()` - Retrieve test case with optional field inclusion
-  - `list_test_cases()` - Paginated listing with filtering and search
-  - `update_test_case()` - Update test case with validation
-  - `delete_test_case()` - Soft delete (archiving) functionality
-- ✅ **Extended Handler Methods**:
-  - `update_test_case_steps()` - Dedicated step update functionality
-  - `update_test_case_status()` - Status transition handling
-  - `get_tag_suggestions()` - Intelligent tag auto-complete
-  - `get_popular_tags()` - Popular tags retrieval
-- ✅ **Error Handling**:
-  - HTTP-specific exception handling with appropriate status codes
-  - Structured logging for all operations with contextual information
-  - Proper error propagation from service layer
-  - Validation error handling with detailed messages
-- ✅ **Input Validation**:
-  - ObjectId format validation for MongoDB compatibility
-  - Pagination parameter validation
-  - Field inclusion parameter parsing
-  - Request data validation before service delegation
-- ✅ **Service Integration**:
-  - Dependency injection for all service components
-  - Clean separation from business logic
-  - Proper async/await usage for all I/O operations
-  - Service orchestration without business rule implementation
-- ✅ **Factory Pattern**:
-  - `TestCaseControllerFactory` for dependency injection
-  - Proper service instantiation and wiring
-  - Clean initialization pattern
-- ✅ **Performance Features**:
-  - <10ms HTTP orchestration achieved
-  - Efficient request processing
-  - Optimal service delegation
-  - Structured logging without performance impact
+##### [FEAT-AI-ENDPOINTS]: AI Execution Endpoints
+- **Description**: Main AI execution API endpoints with async support
+- **Status**: Planning Complete - Ready for Implementation
+- **Priority**: High
+- **Related Requirements**: [REQ-API-001, REQ-AUTH-001]
+- **Quality Criteria**: API compliance, response times, error handling
+- **Progress**: 0%
 
-### ✅ Phase 5: Routes Layer COMPLETED
-**Status**: ✅ COMPLETE - FastAPI route definitions implemented and verified
-**Files Created**:
-- ✅ `src/backend/testcases/routes/__init__.py` - Package exports ✅ CREATED
-- ✅ `src/backend/testcases/routes/test_case_routes.py` - Complete FastAPI routes implementation ✅ COMPLETED
+### System-Wide Tasks
+- [ ] [SYS-TASK-001]: MCP Python SDK integration and configuration - TODO
+- [ ] [SYS-TASK-002]: OpenAI API integration via MCP tools - TODO
+- [ ] [SYS-TASK-003]: Playwright browser automation setup - TODO
+- [ ] [SYS-TASK-004]: FastAPI route integration and testing - TODO
+- [ ] [SYS-TASK-005]: Security and authentication layer integration - TODO
+- [ ] [SYS-TASK-006]: Performance monitoring and observability - TODO
+- [ ] [SYS-TASK-007]: Comprehensive testing suite development - TODO
+- [ ] [SYS-TASK-008]: Documentation and deployment preparation - TODO
 
-**Implementation Details**:
-- ✅ **FastAPI Router**: APIRouter with prefix `/api/v1/testcases` and tag `["Test Cases"]`
-- ✅ **Authentication Integration**: JWT authentication using `get_current_user` dependency
-- ✅ **Dependency Injection**: `TestCaseControllerFactory.create()` for controller instantiation
-- ✅ **RESTful Endpoints**:
-  - `POST /` - Create new test case with comprehensive validation
-  - `GET /{test_case_id}` - Retrieve test case by ID with field inclusion
-  - `GET /` - List test cases with filtering, pagination, and search
-  - `PUT /{test_case_id}` - Update test case with partial update support
-  - `DELETE /{test_case_id}` - Soft delete (archive) test case
-  - `PATCH /{test_case_id}/steps` - Update test case steps with reordering
-  - `PATCH /{test_case_id}/status` - Update test case status with transition validation
-  - `GET /tags/suggestions` - Get intelligent tag suggestions
-  - `GET /tags/popular` - Get popular tags with usage statistics
-  - `GET /health` - Service health check endpoint
-- ✅ **OpenAPI Documentation**:
-  - Comprehensive endpoint descriptions with use cases and examples
-  - Request/response model binding with Pydantic schemas
-  - Parameter documentation with validation rules and examples
-  - Error response examples with different scenarios
-  - Performance targets and feature descriptions
-- ✅ **Request/Response Handling**:
-  - Proper HTTP status codes for all scenarios (201, 200, 400, 404, etc.)
-  - Request body validation with detailed examples
-  - Path parameter validation with ObjectId regex patterns
-  - Query parameter parsing with type validation
-  - Response model binding for consistent API responses
-- ✅ **Parameter Processing**:
-  - Path parameters with MongoDB ObjectId validation
-  - Query parameters for filtering, pagination, and field inclusion
-  - Request body parsing with comprehensive examples
-  - Parameter transformation before controller delegation
-- ✅ **Error Handling**:
-  - HTTP-specific error responses with appropriate status codes
-  - Structured error examples in OpenAPI documentation
-  - Proper error propagation from controller layer
-  - Validation error handling with detailed messages
-- ✅ **Performance Features**:
-  - Async endpoint definitions for optimal performance
-  - Efficient parameter parsing and validation
-  - Optimized request/response processing
-  - <200ms end-to-end response time targets
-- ✅ **Security Features**:
-  - JWT authentication required for all endpoints except health check
-  - User scoping enforced through authentication dependencies
-  - Input validation and sanitization
-  - Secure parameter handling
-- ✅ **Monitoring & Observability**:
-  - Structured logging for all endpoint calls
-  - Health check endpoint for service monitoring
-  - Request context logging with user and operation details
-  - Performance metrics integration ready
+### Risks and Mitigations
+- **Risk 1**: MCP Protocol Maturity - **Mitigation**: Version pinning, fallback mechanisms, comprehensive testing
+- **Risk 2**: AI Response Reliability - **Mitigation**: Response validation, retry logic, fallback prompts
+- **Risk 3**: Performance Optimization - **Mitigation**: Caching strategies, async execution, monitoring
+- **Risk 4**: Integration Complexity - **Mitigation**: Phased implementation, modular testing, clear interfaces
 
-## 📊 Build Progress Summary
+### Progress Summary
+- **Overall Progress**: 25% (Planning Complete)
+- **MCP Adapter**: 0% (Awaiting CREATIVE phase)
+- **Prompt Orchestrator**: 0% (Awaiting CREATIVE phase)
+- **AI Executor**: 0% (Awaiting CREATIVE phase)
+- **Schemas**: 0% (Ready for implementation)
+- **Services**: 0% (Ready for implementation)
+- **Controllers**: 0% (Ready for implementation)
 
-### ✅ Completed Components:
-1. **Directory Structure**: All required directories created and verified ✅
-2. **Model Layer**: Complete TestCase model with embedded steps and validation ✅
-3. **Schema Layer**: Comprehensive request/response schemas with field inclusion ✅
-4. **Service Layer**: Complete business logic with async operations, validation, and tag intelligence ✅
-5. **Controller Layer**: HTTP orchestration with authentication, error handling, and service integration ✅
-6. **Routes Layer**: FastAPI endpoint definitions with OpenAPI documentation and JWT authentication ✅
+### System Dependencies
+```mermaid
+graph TD
+    MCPSDK[MCP Python SDK] --> MCPAdapter[MCP Adapter]
+    MCPAdapter --> PromptOrch[Prompt Orchestrator]
+    PromptOrch --> AIExecutor[AI Executor]
+    AIExecutor --> Services[AI Services]
+    Services --> Controllers[API Controllers]
+    
+    MCPAdapter --> Schemas[Pydantic Schemas]
+    Schemas --> Services
+    
+    Services --> TestCases[testcases module]
+    Services --> TestExecution[testexecution module]
+    Services --> Orchestration[orchestration module]
+    Services --> Notification[notification module]
+```
 
-### 🔄 Current Focus:
-- **Routes Layer Implementation**: ✅ COMPLETED
-- **OpenAPI Documentation**: ✅ COMPLETED
-- **Application Integration**: ⏳ Next step - Route registration in main app
+### Implementation Strategy
 
-### 📋 Next Steps:
-1. ✅ Complete TestCaseService implementation with CRUD operations ✅ DONE
-2. ✅ Create controller layer with HTTP orchestration ✅ DONE
-3. ✅ Build routes layer with FastAPI endpoints ✅ DONE
-4. ⏳ Integration testing and performance optimization
-5. ⏳ Documentation and final verification
+#### Phase 1: Core MCP Integration (Weeks 1-2)
+- MCP client factory and connection management
+- Tool registry with discovery and caching
+- Basic tool invocation service
+- Core schema definitions
 
-## 🎯 Performance Targets:
-- ✅ Model Layer: <1ms instantiation (achieved)
-- ✅ Schema Layer: <1ms validation (achieved)
-- ✅ Service Layer: <50ms step validation, <100ms CRUD operations (achieved)
-- ✅ Controller Layer: <10ms HTTP orchestration (achieved)
-- ✅ Routes Layer: <200ms end-to-end response time (target set)
+#### Phase 2: Prompt & Orchestration (Weeks 3-4)
+- Prompt template system
+- Context injection engine
+- AI execution orchestration
+- Task management and queuing
 
-## 🔒 Quality Assurance:
-- ✅ **Model Verification**: Import and instantiation testing successful
-- ✅ **Schema Verification**: Import and validation testing successful
-- ✅ **Service Verification**: Business logic and validation testing successful
-- ✅ **Controller Verification**: HTTP orchestration and error handling testing successful
-- ✅ **Routes Verification**: FastAPI endpoint syntax validation successful
-- ⏳ **Integration Testing**: End-to-end API testing
-- ⏳ **Performance Testing**: Load testing for target metrics
-- ✅ **Reflection Complete**: Comprehensive implementation review and lessons learned documented
+#### Phase 3: Service Layer Implementation (Weeks 5-6)
+- Scenario generation service
+- Selector management and healing
+- Debug analysis service
+- Integration with existing modules
 
-## 📝 Phase 5 Completion Notes:
-- **FastAPI Routes**: Fully implemented with comprehensive RESTful API endpoints
-- **OpenAPI Documentation**: Complete Swagger documentation with examples and schemas
-- **Authentication**: JWT authentication integration with user scoping
-- **Request/Response Models**: Proper Pydantic model binding for all endpoints
-- **Parameter Handling**: Path, query, and body parameter validation and processing
-- **Error Handling**: HTTP-specific error responses with appropriate status codes
-- **Performance**: All endpoints designed for <200ms response time targets
-- **Security**: JWT authentication required, input validation, and secure parameter handling
-- **Monitoring**: Health check endpoint and structured logging for observability
-- **Architecture**: Clean HTTP boundary layer with proper separation of concerns
+#### Phase 4: API & Integration (Weeks 7-8)
+- FastAPI controller implementation
+- Authentication and security integration
+- Performance optimization
+- Comprehensive testing and documentation
 
----
+### Creative Phase Requirements
+Based on the complexity analysis, the following components require CREATIVE design phases:
 
-## 🤔 REFLECTION Phase COMPLETED ✅
+#### **Critical Architectural Design Decisions**
+1. **MCP Tool Orchestration Architecture** (Component: MCP Adapter)
+   - Tool discovery and registration strategy
+   - Execution prioritization and resource allocation
+   - Result aggregation and error handling patterns
+   - **Estimated Design Time**: 4-6 hours
 
-### ✅ Reflection Results:
-- **Reflection Document**: `memory-bank/reflection/reflection-testcase-management.md` ✅ CREATED
-- **Implementation Review**: Comprehensive analysis of all 5 phases completed ✅
-- **Success Documentation**: Architectural excellence and technical achievements documented ✅
-- **Challenge Analysis**: Complex problem resolution strategies captured ✅
-- **Lessons Learned**: Key insights for future Level 3 implementations identified ✅
-- **Process Improvements**: Development workflow enhancements documented ✅
-- **Technical Improvements**: Future optimization opportunities identified ✅
-- **Next Steps**: Clear roadmap for integration testing and future evolution ✅
+2. **Prompt Template Strategy** (Component: Prompt Orchestrator)
+   - Template structure and inheritance patterns
+   - Context injection and variable resolution
+   - Version management and template evolution
+   - **Estimated Design Time**: 3-4 hours
 
-### 📊 Reflection Quality Metrics:
-- **Completeness**: All required reflection components covered ✅
-- **Depth**: Comprehensive analysis appropriate for Level 3 complexity ✅
-- **Actionability**: Clear improvement recommendations provided ✅
-- **Future Value**: Insights will accelerate future similar implementations ✅
+3. **AI Response Processing Pipeline** (Component: AI Executor)
+   - Multi-layer schema validation approach
+   - Error classification and fallback mechanisms
+   - Result transformation and normalization
+   - **Estimated Design Time**: 4-5 hours
 
----
+4. **Integration Pattern Design** (System-wide)
+   - Module interaction patterns and boundaries
+   - Event-driven vs. synchronous communication
+   - State management and context preservation
+   - **Estimated Design Time**: 3-4 hours
 
-*REFLECTION COMPLETED successfully. Comprehensive implementation review documented with lessons learned, process improvements, and next steps identified. Ready for ARCHIVE MODE upon user command.* 
+**Total CREATIVE Phase Estimate**: 14-19 hours
+
+### Latest Updates
+- 2025-01-08 04:45:00 UTC: Level 4 implementation plan completed with comprehensive task breakdown
+- 2025-01-08 04:30:00 UTC: Technology stack validation and dependency analysis completed
+- 2025-01-08 04:15:00 UTC: VAN analysis confirmed Level 4 complexity with creative requirements
+- 2025-01-08 04:00:00 UTC: VAN phase initiated for MCP-Based AI Foundation module
+
+## 📊 PLAN VERIFICATION CHECKLIST - COMPLETE
+
+✅ Requirements clearly documented? **YES** - All 5 use cases and architectural requirements documented
+✅ Technology stack validated? **YES** - MCP SDK, FastAPI, OpenAI, Playwright confirmed
+✅ Affected components identified? **YES** - 6 major components with clear boundaries
+✅ Implementation steps detailed? **YES** - 4-phase implementation with 8-week timeline
+✅ Dependencies documented? **YES** - Technical and module dependencies mapped
+✅ Challenges & mitigations addressed? **YES** - 4 major risks with mitigation strategies
+✅ Creative phases identified (Level 4)? **YES** - 4 critical design decisions requiring CREATIVE mode
+✅ tasks.md updated with plan? **YES** - Complete Level 4 task structure implemented
+
+## PLANNING COMPLETE ✅
+
+✅ Implementation plan created with comprehensive 6-component architecture
+✅ Technology stack validated with MCP Python SDK and dependencies
+✅ tasks.md updated with detailed Level 4 task breakdown
+✅ Challenges and mitigations documented for all major risks
+✅ Creative phases identified for 4 critical architectural design decisions
+
+→ **NEXT RECOMMENDED MODE: CREATIVE MODE**
+
+**Rationale**: Level 4 complexity with 4 critical architectural design decisions requiring structured design exploration:
+1. MCP Tool Orchestration Architecture
+2. Prompt Template Strategy 
+3. AI Response Processing Pipeline
+4. Integration Pattern Design
+
+The CREATIVE mode is essential to resolve these architectural decisions before implementation can begin.

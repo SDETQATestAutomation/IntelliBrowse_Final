@@ -15,7 +15,7 @@ import logging
 
 from ...config.env import get_settings
 from ...config.logging import get_logger
-from ...config.database import get_database
+from ...auth.services.database_service import get_database_service
 from ...schemas.response import BaseResponse
 from ..models.test_case_model import (
     TestCaseModel,
@@ -485,7 +485,8 @@ class TestCaseService:
         if self._initialized:
             return
         
-        self.db = await get_database()
+        db_service = get_database_service()
+        self.db = db_service.database
         self.collection = self.db.test_cases
         self.validation_service = TestCaseValidationService(self.db)
         self.tag_service = TestCaseTagService(self.db)

@@ -1,0 +1,795 @@
+openapi: 3.0.3
+info:
+  title: IntelliBrowse Scheduler API
+  description: Comprehensive distributed task scheduling API for the IntelliBrowse platform.
+  
+  This API provides capabilities for:
+  - Creating and managing scheduled triggers
+  - Executing tasks on-demand
+  - Monitoring execution history and status
+  - Managing distributed locks and concurrency
+  
+  ## Authentication
+  All endpoints require JWT Bearer token authentication.
+  
+  ## Rate Limiting
+  API requests are rate limited to prevent abuse.
+  
+  ## Error Handling
+  All errors follow RFC 7807 Problem Details for HTTP APIs format.
+  version: 1.0.0
+  contact:
+    name: IntelliBrowse Development Team
+    url: https://intellibrowse.com/support
+    email: dev-support@intellibrowse.com
+  license:
+    name: Proprietary
+    url: https://intellibrowse.com/license
+
+servers:
+  - url: http://localhost:8000/api/scheduler
+    description: Development server
+  - url: https://staging-api.intellibrowse.com/api/scheduler
+    description: Staging server
+  - url: https://api.intellibrowse.com/api/scheduler
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: triggers
+    description: Scheduled trigger management
+  - name: execution
+    description: Task execution and monitoring
+  - name: health
+    description: System health and status
+
+paths:
+  /triggers/:
+    post:
+      tags:
+        - triggers
+      summary: Create scheduled trigger
+      description: |
+        Creates a new scheduled trigger with specified configuration.
+        
+        Supports cron expressions, interval scheduling, and event-driven triggers.
+      operationId: createScheduledTrigger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduledTriggerRequest'
+            examples:
+              cron_trigger:
+                summary: Daily backup trigger
+                value:
+                  name: "daily-backup"
+                  description: "Daily database backup at 2 AM"
+                  trigger_config:
+                    cron_expression: "0 2 * * *"
+                    timezone: "UTC"
+                  execution_config:
+                    task_type: "backup"
+                    max_execution_time: 3600
+                    retry_policy:
+                      max_retries: 3
+                      backoff_multiplier: 2.0
+              interval_trigger:
+                summary: Hourly monitoring
+                value:
+                  name: "hourly-health-check"
+                  description: "System health check every hour"
+                  trigger_config:
+                    interval: 3600
+                    unit: "seconds"
+                  execution_config:
+                    task_type: "health_check"
+                    max_execution_time: 300
+      responses:
+        '201':
+          description: Trigger created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledTriggerResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /triggers/{trigger_id}:
+    put:
+      tags:
+        - triggers
+      summary: Update scheduled trigger
+      description: Updates an existing scheduled trigger configuration
+      operationId: updateScheduledTrigger
+      parameters:
+        - name: trigger_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the trigger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScheduledTriggerRequest'
+            examples:
+              update_schedule:
+                summary: Change schedule time
+                value:
+                  trigger_config:
+                    cron_expression: "0 3 * * *"
+                  is_active: true
+      responses:
+        '200':
+          description: Trigger updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledTriggerResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trigger not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+    delete:
+      tags:
+        - triggers
+      summary: Delete scheduled trigger
+      description: Deletes a scheduled trigger and cancels all future executions
+      operationId: deleteScheduledTrigger
+      parameters:
+        - name: trigger_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the trigger
+      responses:
+        '200':
+          description: Trigger deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponseSchema'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trigger not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /triggers/{trigger_id}/execute:
+    post:
+      tags:
+        - execution
+      summary: Execute trigger manually
+      description: |
+        Triggers immediate execution of a scheduled task.
+        
+        Useful for testing, troubleshooting, or manual execution outside of schedule.
+      operationId: manualTriggerExecution
+      parameters:
+        - name: trigger_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the trigger
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  description: Optional parameters to override default configuration
+                  additionalProperties: true
+                force_execution:
+                  type: boolean
+                  description: Force execution even if trigger is inactive
+                  default: false
+            examples:
+              basic_execution:
+                summary: Basic manual execution
+                value:
+                  force_execution: true
+              with_parameters:
+                summary: Execution with parameters
+                value:
+                  parameters:
+                    environment: "staging"
+                    debug_mode: true
+                  force_execution: false
+      responses:
+        '202':
+          description: Execution initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trigger not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /triggers/{trigger_id}/history:
+    get:
+      tags:
+        - execution
+      summary: Get trigger execution history
+      description: Retrieves paginated execution history for a trigger
+      operationId: getTriggerHistory
+      parameters:
+        - name: trigger_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the trigger
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, running, completed, failed, cancelled]
+          description: Filter by execution status
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter executions from this date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter executions to this date
+      responses:
+        '200':
+          description: Execution history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionHistoryResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trigger not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags:
+        - health
+      summary: Scheduler health check
+      description: Returns the health status of the scheduler system
+      operationId: getSchedulerHealth
+      responses:
+        '200':
+          description: Health status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealthResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token for authentication
+
+  schemas:
+    CreateScheduledTriggerRequest:
+      type: object
+      required:
+        - name
+        - trigger_config
+        - execution_config
+      properties:
+        name:
+          type: string
+          description: Unique name for the trigger
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9_-]+$'
+        description:
+          type: string
+          description: Optional description of the trigger
+          maxLength: 500
+        trigger_config:
+          $ref: '#/components/schemas/TriggerConfigSchema'
+        execution_config:
+          $ref: '#/components/schemas/ExecutionConfigSchema'
+        is_active:
+          type: boolean
+          description: Whether the trigger is active
+          default: true
+
+    UpdateScheduledTriggerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Trigger name
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9_-]+$'
+        description:
+          type: string
+          description: Trigger description
+          maxLength: 500
+        trigger_config:
+          $ref: '#/components/schemas/TriggerConfigSchema'
+        execution_config:
+          $ref: '#/components/schemas/ExecutionConfigSchema'
+        is_active:
+          type: boolean
+          description: Whether the trigger is active
+
+    TriggerConfigSchema:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/CronTriggerConfig'
+        - $ref: '#/components/schemas/IntervalTriggerConfig'
+      discriminator:
+        propertyName: type
+
+    CronTriggerConfig:
+      type: object
+      required:
+        - type
+        - cron_expression
+      properties:
+        type:
+          type: string
+          enum: [cron]
+        cron_expression:
+          type: string
+          description: Cron expression (5 fields)
+          pattern: '^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/[0-6])$'
+        timezone:
+          type: string
+          description: Timezone for cron execution
+          default: "UTC"
+        execution_window:
+          type: integer
+          description: Window in seconds for execution tolerance
+          default: 300
+
+    IntervalTriggerConfig:
+      type: object
+      required:
+        - type
+        - interval
+        - unit
+      properties:
+        type:
+          type: string
+          enum: [interval]
+        interval:
+          type: integer
+          description: Interval value
+          minimum: 1
+        unit:
+          type: string
+          enum: [seconds, minutes, hours, days]
+          description: Interval unit
+        start_time:
+          type: string
+          format: date-time
+          description: When to start the interval schedule
+
+    ExecutionConfigSchema:
+      type: object
+      required:
+        - task_type
+      properties:
+        task_type:
+          type: string
+          description: Type of task to execute
+          enum: [http_call, llm_task, test_execution, backup, maintenance]
+        parameters:
+          type: object
+          description: Task-specific parameters
+          additionalProperties: true
+        max_execution_time:
+          type: integer
+          description: Maximum execution time in seconds
+          default: 3600
+        retry_policy:
+          $ref: '#/components/schemas/RetryPolicySchema'
+        max_concurrent_executions:
+          type: integer
+          description: Maximum concurrent executions for this trigger
+          default: 1
+          minimum: 1
+
+    RetryPolicySchema:
+      type: object
+      properties:
+        max_retries:
+          type: integer
+          description: Maximum number of retry attempts
+          default: 3
+          minimum: 0
+          maximum: 10
+        backoff_multiplier:
+          type: number
+          description: Exponential backoff multiplier
+          default: 2.0
+          minimum: 1.0
+          maximum: 10.0
+        initial_delay:
+          type: integer
+          description: Initial delay in seconds before first retry
+          default: 60
+          minimum: 1
+        max_delay:
+          type: integer
+          description: Maximum delay between retries
+          default: 3600
+          minimum: 1
+
+    ScheduledTriggerResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                trigger_id:
+                  type: string
+                  format: uuid
+                  description: Unique identifier
+                name:
+                  type: string
+                  description: Trigger name
+                description:
+                  type: string
+                  description: Trigger description
+                trigger_config:
+                  $ref: '#/components/schemas/TriggerConfigSchema'
+                execution_config:
+                  $ref: '#/components/schemas/ExecutionConfigSchema'
+                is_active:
+                  type: boolean
+                  description: Whether trigger is active
+                created_by:
+                  type: string
+                  format: uuid
+                  description: User who created the trigger
+                created_at:
+                  type: string
+                  format: date-time
+                  description: Creation timestamp
+                updated_at:
+                  type: string
+                  format: date-time
+                  description: Last update timestamp
+                next_execution:
+                  type: string
+                  format: date-time
+                  description: Next scheduled execution time
+                last_execution:
+                  type: string
+                  format: date-time
+                  description: Last execution time
+                execution_count:
+                  type: integer
+                  description: Total number of executions
+
+    ExecutionStatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                execution_id:
+                  type: string
+                  format: uuid
+                  description: Unique execution identifier
+                trigger_id:
+                  type: string
+                  format: uuid
+                  description: Associated trigger identifier
+                status:
+                  type: string
+                  enum: [pending, running, completed, failed, cancelled]
+                  description: Current execution status
+                started_at:
+                  type: string
+                  format: date-time
+                  description: Execution start time
+                estimated_completion:
+                  type: string
+                  format: date-time
+                  description: Estimated completion time
+
+    ExecutionHistoryResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                executions:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ScheduledJobResponse'
+                pagination:
+                  $ref: '#/components/schemas/PaginationInfo'
+
+    ScheduledJobResponse:
+      type: object
+      properties:
+        execution_id:
+          type: string
+          format: uuid
+          description: Unique execution identifier
+        trigger_id:
+          type: string
+          format: uuid
+          description: Associated trigger identifier
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+          description: Execution status
+        started_at:
+          type: string
+          format: date-time
+          description: Execution start time
+        completed_at:
+          type: string
+          format: date-time
+          description: Execution completion time
+        duration:
+          type: integer
+          description: Execution duration in seconds
+        retry_count:
+          type: integer
+          description: Number of retry attempts
+        error_message:
+          type: string
+          description: Error message if execution failed
+        result:
+          type: object
+          description: Execution result data
+          additionalProperties: true
+
+    SystemHealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [healthy, degraded, unhealthy]
+                  description: Overall system health status
+                scheduler_engine:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum: [running, stopped, error]
+                    uptime:
+                      type: integer
+                      description: Uptime in seconds
+                    active_triggers:
+                      type: integer
+                      description: Number of active triggers
+                    running_executions:
+                      type: integer
+                      description: Number of running executions
+                database:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum: [connected, disconnected, error]
+                    response_time:
+                      type: number
+                      description: Database response time in milliseconds
+                queue:
+                  type: object
+                  properties:
+                    depth:
+                      type: integer
+                      description: Number of tasks in queue
+                    processing_rate:
+                      type: number
+                      description: Tasks processed per minute
+                memory:
+                  type: object
+                  properties:
+                    used:
+                      type: integer
+                      description: Used memory in bytes
+                    available:
+                      type: integer
+                      description: Available memory in bytes
+                    usage_percentage:
+                      type: number
+                      description: Memory usage percentage
+
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        page_size:
+          type: integer
+          description: Items per page
+        total_items:
+          type: integer
+          description: Total number of items
+        total_pages:
+          type: integer
+          description: Total number of pages
+        has_next:
+          type: boolean
+          description: Whether there is a next page
+        has_previous:
+          type: boolean
+          description: Whether there is a previous page
+
+    BaseResponseSchema:
+      type: object
+      required:
+        - success
+        - message
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful
+        message:
+          type: string
+          description: Human-readable message
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            error:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Error code
+                details:
+                  type: string
+                  description: Detailed error message
+                request_id:
+                  type: string
+                  description: Request identifier for debugging
+
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            validation_errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    description: Field that failed validation
+                  message:
+                    type: string
+                    description: Validation error message
+                  code:
+                    type: string
+                    description: Validation error code 
