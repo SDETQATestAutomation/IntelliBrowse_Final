@@ -55,7 +55,7 @@ general_principles:
   - All code must include logging, structured error handling, and fallback mechanisms.
 
 venv_usage:
-  - Always create a Python virtual environment using: `python3 -m venv .venv`
+  - Always create a Python virtual environment using: `/opt/homebrew/bin/python3.12 -m venv .venv`
   - Always activate the virtual environment using: `source .venv/bin/activate`
   - Always use the Bash terminal in Cursor AI for executing shell commands to ensure compatibility.
 

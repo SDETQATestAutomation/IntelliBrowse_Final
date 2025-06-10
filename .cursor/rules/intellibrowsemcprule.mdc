@@ -1,0 +1,101 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+source_folder: src
+mcp_folder: src/backend/mcp  # All MCP-related code must reside here.
+memory_bank_folder: memory_bank
+requirement_file: requirements.txt (must be in project root)
+gitignore_file: .gitignore (must be in project root)
+
+project_structure:
+  - The MCP folder **must** be placed at `src/backend/mcp`.
+  - All MCP-related modules, handlers, tools, schemas, configs, and protocol logic **must** reside in `src/backend/mcp`.
+  - No MCP logic or code should be present outside this directory.
+  - Maintain a clean modular structure within `src/backend/mcp` (e.g., tools/, prompts/, schemas/, resources/, config/).
+
+memory_bank:
+  - Intialize and use memory-bank to retain and recall MCP implementation context across all development stages.
+  - Document tool registration, protocol integration, session context, and architectural decisions.
+
+lifecycle_stages:
+  - VAN: Initialize project and determine MCP server complexity and compliance scope.
+  - PLAN: Create a detailed implementation plan for all MCP server modules and toolchains.
+  - CREATIVE: Explore and document options for dynamic tool/plugin design, prompt/resource management, and LLM orchestration.
+  - IMPLEMENT: Systematically build MCP skeleton, dynamic tool loader, protocol handlers, and context/session management.
+  - REFLECT: Review, test, and document MCP compliance, error handling, and extensibility.
+  - ARCHIVE: Archive comprehensive MCP documentation, OpenAPI/Swagger specs, and configuration samples.
+
+resume_protocol:
+  - RESUME: Resume MCP server development from the last valid state.
+  - 🛠️ Context: The previous implementation may have stopped due to a Cursor limitation, crash, or error.
+  - 🎯 Action Required:
+    - Inspect the current project structure, memory bank, and previous tool outputs to identify:
+      - ✅ Completed items (e.g., modules, toolchains, session/context models)
+      - ⏳ Partially completed items
+      - ⚠️ Missing or skipped components
+    - Resume implementation only for items not yet completed.
+    - Do not regenerate any component that is already valid and complete.
+    - Reuse previously defined architecture, prompt/resource structures, and tool descriptors.
+  - 🔁 While resuming:
+    - Use any saved state, cached memory, or identifiable work-in-progress to determine safe resume points.
+    - Re-parse attached rules from Cursor’s Features > Settings and apply:
+      - Global rules
+      - MCP-specific project rules
+      - System and architectural patterns (e.g., modularity, SRP, DRY, async/await)
+      - Design and integration best practices (e.g., Pydantic validation, config-driven security)
+    - Refer to previously provided documents like `MCPINTRO.md`, `MCPReadME.md`, etc.
+  - 🧠 MANDATORY:
+    - After resuming and before concluding this prompt, update the memory bank/progress document with:
+      - ✅ Completed MCP modules, tool registrations, and tests
+      - ⏳ Items partially completed or deferred
+      - ⚠️ Skipped or errored components (note if any are impacted by Cursor tool call limits)
+    - ✅ Confirm completion and leave a comment in the memory/progress update stating:
+      - *Resume checkpoint saved after X of Y tool calls executed. Remaining tasks queued.*
+
+mcp_principles:
+  - The MCP server is the sole, centralized AI orchestration layer—**no AI code in IntelliBrowse backend**.
+  - All AI features (e.g., BDD/DOM/Locator/Selector/Prompt/Resource/Report tools) must be invoked via MCP using the official `mcp` Python library.
+  - Uniform, extensible JSON-RPC 2.0 protocol for all AI interactions.
+  - All toolchains, prompts, and resources must be discoverable and registered at startup; support dynamic enable/disable.
+  - Tool, prompt, and resource definitions must be strict Pydantic models.
+  - Tool results (including errors) must be wrapped in the MCP result schema—never allow protocol-level exceptions.
+  - All configuration, secrets, and credentials are managed via environment/config—never hardcoded.
+  - Each invocation must include and propagate session/task/user context, resource URIs, and toolchain state.
+  - Use vector database integration for session memory, resource lookup, or prompt/result enrichment if required.
+  - All changes must be logged and observable for audit and compliance.
+
+dependencies:
+  - mcp  # Model Context Protocol Python SDK (required, always up-to-date)
+  - mcp-cli  # CLI tools for dev and local integration/testing
+  - pydantic  # For all schema and model definitions (requests, responses, tool descriptors)
+  - fastapi  # Optional, if exposing an HTTP API (OpenAPI docs recommended)
+  - uvicorn or anyio  # Async server runtime
+  - playwright  # Browser automation agent (for session/context-driven workflows)
+  - openai  # For LLM-based tools (if using OpenAI models)
+  - httpx, aiofiles  # For async I/O
+  - loguru or structlog  # Structured logging
+  - python-dotenv  # Environment variable/config management
+  - jsonschema  # Extra schema enforcement (optional)
+  - Vector DB client (e.g., chromadb, qdrant)  # If using memory banks or session context storage
+
+testing_and_docs:
+  - All tools/modules must include unit and integration tests using `pytest` and MCP test harnesses.
+  - All API endpoints and tools must be discoverable via OpenAPI/Swagger docs if using FastAPI.
+  - Provide usage instructions for `mcp-cli` and sample tool invocation scripts.
+  - Document all tool descriptors, input/output schemas, and expected result formats.
+
+security_and_compliance:
+  - TLS, authentication, rate limiting, and access control are mandatory for all endpoints.
+  - All tool/resource invocations must be logged with session/context metadata for audit.
+  - No hardcoded credentials—use environment/config only.
+  - GDPR/SOC2/HIPAA modes: implement deletion/export APIs and data retention controls as needed.
+
+enterprise_extensions:
+  - Support for chained/multi-tool workflows (run navigation → extract DOM → generate locator → execute BDD → export report).
+  - Plugin/module hot-reload and dynamic registration at runtime.
+  - Role-based access control (RBAC) and namespace isolation for multi-tenancy.
+  - Feedback/correction API and prompt/model versioning for AI governance.
+  - Streaming responses and artifact/resource management for large test outputs or logs.
+
