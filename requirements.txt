@@ -24,7 +24,7 @@ python-multipart==0.0.12
 
 # Database Dependencies
 motor==3.6.0
-pymongo==4.10.1
+pymongo>=4.9,<4.10
 
 # Validation
 email-validator==2.2.0
@@ -36,5 +36,22 @@ black==25.1.0
 flake8==7.1.1
 isort==6.0.1
 
-# Additional backend utilities (for future use)
-# httpx>=0.25.0           # For external API calls 
+# MCP (Model Context Protocol) Dependencies - AI Orchestration Layer
+mcp>=1.0.0,<2.0.0       # Model Context Protocol Python SDK
+mcp-cli==0.1.0          # CLI tools for dev and local integration/testing
+anyio>=4.6.0            # Async server runtime for MCP
+
+# AI and Browser Automation Dependencies
+openai==1.55.3          # For LLM-based tools
+playwright==1.48.0      # Browser automation agent
+httpx==0.28.1           # For async I/O and external API calls
+aiofiles==24.1.0        # Async file operations
+
+# Vector Database (for session memory)
+chromadb==0.5.20        # Vector database for memory banks and session context
+
+# Additional Schema Validation
+jsonschema==4.23.0      # Extra schema enforcement
+
+# Additional backend utilities
+structlog==24.4.0       # Structured logging for MCP operations 

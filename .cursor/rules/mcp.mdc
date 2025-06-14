@@ -1,0 +1,236 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+**Updated & Finalized MCP Server Implementation Outline for IntelliBrowse**
+*(Incorporates all essentials, Python SDK details, primitives, deployment/testing, and enterprise/scaling patterns. This is ready for Cursor-driven development, with all project, protocol, and SDK requirements explicitly aligned.)*
+
+---
+
+# 🧭 **IntelliBrowse MCP Server – Finalized Implementation Blueprint**
+
+---
+
+## **I. Architecture Overview**
+
+### **A. MCP as Central AI Orchestration Layer**
+
+* **All AI/LLM logic is centralized in the MCP server** (`src/backend/mcp`)—no AI code elsewhere in IntelliBrowse.
+* **Decoupling achieved via strict protocol boundaries:**
+
+  * **Tools:** Model-controlled, allow LLMs to take action (POST-like, e.g., generate locator, execute SQL, BDD step, etc.)
+  * **Prompts:** User-controlled, expose reusable templates, invoked by user/host actions.
+  * **Resources:** Application-controlled, provide context or data for LLMs (GET-like; e.g., DOM snapshot, page schema, vector embeddings, etc.)
+* **All communication via JSON-RPC 2.0, with strict schema validation and context propagation.**
+* **MCP SDK**: Use official [Python SDK](mdc:https:/github.com/anthropic-ai/mcp) (`mcp[cli]`), leveraging `FastMCP` for server, and decorator-based registration for all primitives.
+
+---
+
+## **II. Project & Directory Structure**
+
+```
+src/
+└── backend/
+    └── mcp/
+        ├── main.py                 # Entry point: creates & runs FastMCP server
+        ├── core/                   # Protocol dispatcher, session/context mgmt, transports
+        ├── schemas/                # All Pydantic schemas (Tools, Prompts, Resources, Context)
+        ├── tools/                  # Tool modules (e.g., bdd_generator.py, locator.py, ...)
+        ├── prompts/                # Prompt definitions, prompt management
+        ├── resources/              # Resource modules, resource fetching logic
+        ├── config/                 # Config loader, envvars, secrets, TLS, OAuth, etc.
+        ├── orchestration/          # Workflow chaining, session memory, workflow templates
+        ├── security/               # RBAC, OAuth, audit, namespace
+        ├── tests/                  # Unit/integration tests, protocol compliance
+        ├── plugins/                # (optional) 3rd-party or hot-reloadable tool modules
+        └── README.md
+memory_bank/   # Progress tracking, context, lifecycle, checkpoints
+requirements.txt
+.env.example
+.gitignore
+```
+
+* **All MCP logic and code must live in `src/backend/mcp/`**.
+* **No AI code elsewhere in IntelliBrowse.**
+
+---
+
+## **III. MCP Protocol, SDK, & Primitives**
+
+### **A. FastMCP Pattern**
+
+* Use `FastMCP` (from `mcp.server.fastmcp`) as the main server interface.
+* Decorate:
+
+  * `@mcp_server.tool()`     for tools
+  * `@mcp_server.prompt()`   for prompts
+  * `@mcp_server.resource()` for resources (URI-based)
+* **Type-hint all parameters/returns** (critical for schema discovery and compliance).
+* **Context object** available for logging/tracing in tool/resource methods.
+
+### **B. Primitives & Control Model**
+
+| Primitive | Control  | Description                        | Example(s)                                            |
+| --------- | -------- | ---------------------------------- | ----------------------------------------------------- |
+| Tool      | Model    | LLM-invoked actions (side effects) | Generate locator, run BDD step, SQL query, file write |
+| Prompt    | User     | Reusable, user-triggered templates | /summarize, /review\_code, /gen\_scenario             |
+| Resource  | Host/App | Expose context/data, GET-style     | DOM tree, test results, vector index, DB schema       |
+
+* **Separation of concerns is paramount:**
+
+  * **No logic leakage between primitives.**
+  * **Control model strictly enforced.**
+
+---
+
+## **IV. Key Server Components**
+
+### **1. Core Server & Protocol**
+
+* JSON-RPC dispatcher (std-io, SSE/HTTP, or FastAPI mountable).
+* Capability negotiation, session/context lifecycle, error wrapping (no protocol-level exceptions).
+
+### **2. Pydantic Schemas**
+
+* ToolDescriptor, PromptTemplate, ResourceRef, ToolCallRequest/Response, SessionContext, plus per-tool schemas (LocatorRequest, BDDRequest, etc.)
+* Strict validation at *all* protocol boundaries.
+
+### **3. Config, Security, & Auth**
+
+* Environment-driven config loader (`python-dotenv`).
+* OAuth 2.0 server (from `mcp.server.auth`) for protected tools/resources.
+* TLS/HTTPS, rate limiting, CORS, RBAC, multi-tenancy/namespace.
+
+### **4. Modular Tools System**
+
+* Each tool in its own file/class; registered at startup via decorator.
+* Tool discovery, enable/disable, hot-reload/plugin support.
+* SRP and async/await everywhere.
+
+### **5. Prompt & Resource System**
+
+* Prompt CRUD/versioning, prompt-as-tool if needed.
+* Resource system: URI-based, can return text, structured content, images, or binary (as base64 or via artifact store).
+* Vector DB support for memory/context (e.g., via chromadb, qdrant).
+
+### **6. Orchestration & Workflow**
+
+* Chained/multi-tool execution (navigate → extract → generate locator → run test → export report).
+* Session/task memory bank (with auto-expiry), workflow templates.
+
+### **7. Observability, Compliance, Audit**
+
+* All tool/resource invocations logged with session/task/user context.
+* Audit log, feedback/correction APIs, prompt/model versioning.
+* Compliance: GDPR/SOC2/HIPAA ready (deletion/export, retention APIs).
+
+### **8. Testing & Docs**
+
+* **MCP Inspector**: Dev/test/debug in local mode (`mcp dev main.py`)
+* **MCP Protocol Validator**: Formal spec compliance checks.
+* **Pytest**: All primitives have unit/integration tests.
+* **Docs**: OpenAPI/Swagger if using FastAPI HTTP, usage guides for CLI and clients.
+
+---
+
+## **V. Development & Deployment Patterns**
+
+### **A. Local Development**
+
+* Use `uv` or `venv` for isolated Python envs.
+* Install with `pip install "mcp[cli]"` (or `uv add mcp[cli]`).
+* Run in dev mode for Inspector:
+
+  ```
+  mcp dev src/backend/mcp/main.py
+  ```
+* Edit tools, prompts, resources with strict type hints.
+* Use `.env` for config/secrets, never hardcode.
+
+### **B. Production Deployment**
+
+* **Preferred:** Streamable HTTP (SSE, ASGI) transport.
+
+  * Run standalone or mounted in FastAPI (using `.sse_app()`).
+* **Secure with:**
+
+  * TLS/HTTPS
+  * OAuth 2.0
+  * CORS, rate limiting, RBAC, and logging.
+* **Scale out via**: ASGI/farm, load balancer, containerized deployment.
+
+---
+
+## **VI. Enterprise/Scaling Extensions**
+
+* **RBAC, Audit, Multi-Tenant Namespacing**
+* **Plugin/Hot-Reload System** for runtime tool/prompt loading
+* **Session/Memory Bank** using vector DB (retrieval, context enrichment)
+* **Chained Workflows** and orchestration templates
+* **Feedback/correction** and prompt/model versioning API
+* **Streaming/chunked responses** for large logs/artifacts
+* **Compliance:**
+
+  * Deletion/export endpoints (GDPR)
+  * Retention policies (SOC2/HIPAA)
+
+---
+
+## **VII. Memory Bank & Resume Protocol (for Cursor/AI development)**
+
+* **All progress tracked in `memory_bank/`**
+* Each step/stage (VAN/PLAN/CREATIVE/IMPLEMENT/REFLECT/ARCHIVE) logs:
+
+  * ✅ Completed components/tools/primitives
+  * ⏳ In-progress/partial
+  * ⚠️ Skipped/errors (noted if Cursor tool call limit)
+* **Resuming:** Only incomplete components get prompts; no regeneration of valid modules.
+
+---
+
+## **VIII. Implementation Phases (Cursor Workflow)**
+
+1. **VAN:** Initialize MCP server (project, compliance, primitives)
+2. **PLAN:** Detailed plan for each module (core, tools, prompts, resources, config, etc.)
+3. **CREATIVE:** Design tool loading, dynamic registration, advanced orchestration, session memory, feedback API, plugin system.
+4. **IMPLEMENT:** Build project step-by-step—start with `main.py`, base config, then core schemas, then add tools, prompts, resources, then workflow/orchestration, security, plugins.
+5. **REFLECT:** Test with Inspector, validate protocol, audit logs, error wrapping, and compliance.
+6. **ARCHIVE:** Generate docs (README, OpenAPI, usage guides), memory bank snapshots, sample configs, and dev notes.
+
+---
+
+## **IX. Examples (per SDK & Best Practices)**
+
+* **Tool Example:**
+
+  ```python
+  @mcp_server.tool()
+  async def generate_locator(dom: str, strategy: str = "auto") -> str:
+      # LLM-powered locator logic...
+      return "css=[data-test-id='submit']"
+  ```
+* **Prompt Example:**
+
+  ```python
+  @mcp_server.prompt()
+  def bdd_scenario_prompt(story: str) -> str:
+      return f"Generate Gherkin for: {story}"
+  ```
+* **Resource Example:**
+
+  ```python
+  @mcp_server.resource("dom://{page_id}")
+  async def fetch_dom_resource(page_id: str) -> str:
+      # fetch and return DOM for page
+      return "<html>...</html>"
+  ```
+
+---
+
+# 🚦 **Ready for Step-by-Step Development!**
+
+* This outline is exhaustive, protocol-compliant, SDK-optimized, and production-ready.
+
+
+
