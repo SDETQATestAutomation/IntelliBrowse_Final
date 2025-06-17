@@ -1,8 +1,7 @@
 """
-Selector Healer Tool Schemas
+Selector Healer Tool Schemas.
 
-Schemas for the selector healing tool that repairs broken/failing selectors
-by analyzing DOM changes and suggesting working alternatives.
+Pydantic schemas for selector healing tool request and response validation.
 """
 
 from typing import List, Optional, Dict, Any

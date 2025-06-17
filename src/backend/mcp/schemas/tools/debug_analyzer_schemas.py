@@ -1,8 +1,7 @@
 """
-Debug Analyzer Tool Schemas
+Debug Analyzer Tool Schemas.
 
-Schemas for the debug analysis tool that analyzes errors, exceptions,
-and test failures to provide root cause analysis and actionable recommendations.
+Pydantic schemas for debug analysis tool request and response validation.
 """
 
 from typing import List, Optional, Dict, Any
@@ -21,11 +20,11 @@ class DebugAnalyzerRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "error_message": "TimeoutError: Locator 'css=#submit-btn' not found",
-                "error_type": "TimeoutError",
-                "stack_trace": "File test_login.py line 45 in click_submit_button",
-                "logs": "Page loaded successfully, DOM ready",
-                "context": "Login test execution on Chrome browser"
+                "error_message": "Element not found: #submit-button",
+                "error_type": "ElementNotFound",
+                "stack_trace": "playwright._impl._api_types.TimeoutError: Timeout 30000ms exceeded.",
+                "logs": "Browser console: Element #submit-button not visible",
+                "context": "Login form automation test"
             }
         }
 
@@ -42,23 +41,20 @@ class DebugAnalyzerResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "analysis": {
-                    "category": "locator_failure",
+                    "category": "element_not_found",
                     "severity": "medium",
-                    "root_cause": "Element selector changed or timing issue",
-                    "affected_components": ["login_form", "submit_button"]
+                    "likely_causes": ["Selector changed", "Element not yet loaded", "Timing issue"],
+                    "impact": "Test execution failure"
                 },
                 "recommendations": [
                     {
                         "priority": "high",
-                        "action": "Update selector to use more stable attributes",
-                        "implementation": "Use data-testid or class-based selector",
-                        "confidence": 0.9
+                        "action": "update_selector",
+                        "description": "Update selector to match current DOM structure",
+                        "implementation": "Use more stable selector strategy"
                     }
                 ],
                 "confidence": 0.85,
-                "metadata": {
-                    "analysis_time": 2.3,
-                    "patterns_matched": ["timeout_error", "selector_not_found"]
-                }
+                "metadata": {"analysis_time": 1.5, "patterns_matched": 3}
             }
         } 

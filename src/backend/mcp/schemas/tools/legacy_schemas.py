@@ -1,16 +1,15 @@
 """
-Legacy Tool Schemas (Deprecated)
+Legacy Tool Schemas.
 
-Legacy schemas maintained for backward compatibility.
-These schemas will be deprecated in future versions.
-New implementations should use the modular schema files.
+Pydantic schemas for legacy tool request and response validation.
+These schemas are maintained for backward compatibility.
 """
 
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 
-# Legacy Step Generator Schemas
+# Legacy Step Generation Schemas
 class StepRequest(BaseModel):
     """Legacy request schema for test step generation tool."""
     
@@ -22,10 +21,10 @@ class StepRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "scenario_context": "User login functionality",
+                "scenario_context": "User login scenario",
                 "step_type": "when",
-                "action_description": "User enters valid credentials",
-                "page_context": "Login page with username and password fields"
+                "action_description": "user enters valid credentials",
+                "page_context": "login page"
             }
         }
 
@@ -42,14 +41,14 @@ class StepResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "step_definition": "When I enter valid credentials",
-                "implementation_code": "def step_enter_valid_credentials(context): ...",
+                "implementation_code": "await page.fill('#username', 'testuser')",
                 "parameters": ["username", "password"],
                 "confidence_score": 0.9
             }
         }
 
 
-# Legacy Selector Healer Schemas
+# Legacy Selector Healing Schemas
 class SelectorRequest(BaseModel):
     """Legacy request schema for selector healing tool."""
     
@@ -62,9 +61,9 @@ class SelectorRequest(BaseModel):
         json_schema_extra = {
             "example": {
                 "broken_selector": "#old-submit-btn",
-                "current_dom": "<html><body><button class='btn-primary'>Submit</button></body></html>",
-                "expected_element_description": "Submit button",
-                "previous_successful_selectors": ["#submit-btn", ".submit-button"]
+                "current_dom": "<html><body><button class='submit-button'>Submit</button></body></html>",
+                "expected_element_description": "Submit button for form submission",
+                "previous_successful_selectors": ["#submit-btn", ".submit"]
             }
         }
 
@@ -81,16 +80,16 @@ class SelectorResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "healed_selector": ".btn-primary",
+                "healed_selector": ".submit-button",
                 "healing_strategy": "class_based_replacement",
                 "confidence_score": 0.85,
                 "alternative_selectors": ["button[type='submit']", "input[value='Submit']"],
-                "healing_notes": "Switched from ID to class selector due to ID change"
+                "healing_notes": "Switched from ID to class-based selector for better stability"
             }
         }
 
 
-# Legacy Debug Analyzer Schemas
+# Legacy Debug Analysis Schemas
 class DebugRequest(BaseModel):
     """Legacy request schema for debug analysis tool."""
     
@@ -103,11 +102,11 @@ class DebugRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "error_message": "Element not found: #login-button",
-                "test_context": "Login test execution",
-                "stack_trace": "Traceback (most recent call last): ...",
-                "browser_logs": ["Console error: Failed to load resource"],
-                "screenshot_base64": "iVBORw0KGgoAAAANSUhEUgAAA..."
+                "error_message": "Element not found: #submit-button",
+                "test_context": "Login form submission test",
+                "stack_trace": "TimeoutError: Waiting for selector #submit-button failed",
+                "browser_logs": ["Error: Button not clickable", "Warning: Deprecated API usage"],
+                "screenshot_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
             }
         }
 
@@ -124,16 +123,18 @@ class DebugResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "root_cause_analysis": "Element selector has changed due to DOM updates",
+                "root_cause_analysis": "The submit button selector has changed due to DOM structure updates",
                 "suggested_fixes": [
-                    "Update selector to use data-testid",
-                    "Add explicit wait for element visibility"
+                    "Update selector to use class instead of ID",
+                    "Add wait condition for element visibility",
+                    "Implement retry mechanism with multiple selectors"
                 ],
-                "confidence_score": 0.9,
-                "similar_issues": ["Selector instability", "Dynamic element loading"],
+                "confidence_score": 0.92,
+                "similar_issues": ["Button ID changes", "Dynamic content loading"],
                 "prevention_tips": [
-                    "Use stable element attributes",
-                    "Implement proper waiting strategies"
+                    "Use stable selectors based on data attributes",
+                    "Implement selector healing mechanisms",
+                    "Regular DOM structure monitoring"
                 ]
             }
         } 

@@ -1,0 +1,57 @@
+python playwright_agent.py
+/opt/homebrew/bin/python3 -m venv /Users/prashantranjan/IntelliBrowsePython/src/env
+source /Users/prashantranjan/IntelliBrowsePython/.venv/bin/activate
+/opt/homebrew/bin/python3.12
+/opt/homebrew/bin/python3.12 -m venv .venv
+python -m src.backend.server
+cd src/frontend && npm run dev
+pip cache purge
+rm -rf .venv
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -U pip setuptools wheel
+pip install bcrypt passlib
+
+mongo
+mongorestore --drop --uri="mongodb://localhost:27017/intellibrowse_pre" "/Users/prashantranjan/IntelliBrowsePython/db_backup/intellibrowse_pre"
+ps aux | grep uvicorn | grep -v grep
+show collections
+use intellibrowse_pre
+show dbs
+db.testsuites.find().pretty()
+db.testruns.find().count()
+mongodump --uri="mongodb://localhost:27017/intellibrowse_pre" --out="/path/to/backup/directory"
+mongodump --uri="mongodb://username:password@hostname:port/intellibrowse_pre" --out="/Users/prashantranjan/IntelliBrowsePython/db_backup_new"
+mongorestore --drop --uri="mongodb://localhost:27017/intellibrowse_pre" "/Users/prashantranjan/IntelliBrowsePython/db_backup_new/intellibrowse_pre"
+python run_backend.py
+cd src/frontend && npm run dev
+find . -type d -name "__pycache__" -exec rm -r {} +
+pip install --upgrade pip
+pip uninstall bcrypt passlib -y
+pip install --no-cache-dir bcrypt passlib
+
+curl -I -X OPTIONS http://localhost:5001/socket.io/ -H "Origin: http://localhost:3001" -v
+curl "http://localhost:5001/api/reports/trends?applicationId=67dedd702a3f6d6b5493cf3e" | jq
+
+mongosh intellibrowse_pre --eval "db.getCollectionNames().forEach(collection => { print(collection + ': ' + db[collection].countDocuments()) })"
+mongosh --eval "db.getMongo().getDBNames()" | grep intellibrowse_pre
+  'intellibrowse_pre',
+
+mongosh --eval "db.getSiblingDB('intellibrowse-pre').dropDatabase()"
+
+PYTHONPATH=src pytest tests/config
+PYTHONPATH=src pytest -v --tb=short tests | cat
+PYTHONPATH=src pytest --maxfail=1 --disable-warnings -q | cat
+PYTHONPATH=src pytest --disable-warnings -q | cat
+
+
+export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+uvicorn backend.asgi:application --host 0.0.0.0 --port 7010 --reload
+
+cd src
+uvicorn backend.asgi:application --host 0.0.0.0 --port 7010 --reload
+
+
+mongo intellibrowse_pre --eval "db.users.find().pretty()
+
+curl -X POST http://localhost:7010/api/auth/login -H "Content-Type: application/json" -d '{"email": "admin@intellibrowse.io", "password": "admin123"}' | cat

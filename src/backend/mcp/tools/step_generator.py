@@ -26,7 +26,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
-from ..schemas.tools.step_generator_schemas import StepGeneratorRequest, StepGeneratorResponse
+from ..schemas.tool_schemas import StepGeneratorRequest, StepGeneratorResponse
 from ..config.settings import get_settings
 
 # Configure logging

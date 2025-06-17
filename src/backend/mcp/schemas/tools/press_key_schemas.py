@@ -1,8 +1,7 @@
 """
-Press Key Tool Schemas
+Press Key Tool Schemas.
 
-Schemas for the key press tool that sends keyboard events to browser sessions
-with support for modifier keys, element focusing, and configurable timing.
+Pydantic schemas for pressing keyboard keys request and response validation.
 """
 
 from typing import Optional, List, Dict, Any
@@ -59,10 +58,10 @@ class PressKeyResponse(BaseModel):
                 "key_pressed": True,
                 "focused_element": True,
                 "modifiers_used": [],
-                "elapsed_ms": 150,
+                "elapsed_ms": 120,
                 "metadata": {
-                    "key_code": "Enter",
-                    "active_element": "button",
+                    "key_code": 13,
+                    "element_type": "form",
                     "form_submitted": True
                 }
             }

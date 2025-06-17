@@ -1,8 +1,7 @@
 """
-Locator Generator Tool Schemas
+Locator Generator Tool Schemas.
 
-Schemas for the element locator generation tool that creates CSS selectors,
-XPath expressions, and other locators from DOM snapshots and element descriptions.
+Pydantic schemas for element locator generation tool request and response validation.
 """
 
 from typing import List, Optional, Dict, Any

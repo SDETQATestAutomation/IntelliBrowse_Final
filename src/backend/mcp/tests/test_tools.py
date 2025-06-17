@@ -16,11 +16,13 @@ from ..tools.selector_healer import heal_selector
 from ..tools.debug_analyzer import analyze_debug_info
 
 # Schema imports
-from ..schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
-from ..schemas.tools.locator_generator_schemas import LocatorGeneratorRequest, LocatorGeneratorResponse
-from ..schemas.tools.step_generator_schemas import StepGeneratorRequest, StepGeneratorResponse
-from ..schemas.tools.selector_healer_schemas import SelectorHealerRequest, SelectorHealerResponse
-from ..schemas.tools.debug_analyzer_schemas import DebugAnalyzerRequest, DebugAnalyzerResponse
+from ..schemas.tool_schemas import (
+    BDDGeneratorRequest, BDDGeneratorResponse,
+    LocatorGeneratorRequest, LocatorGeneratorResponse,
+    StepGeneratorRequest, StepGeneratorResponse,
+    SelectorHealerRequest, SelectorHealerResponse,
+    DebugAnalyzerRequest, DebugAnalyzerResponse
+)
 
 class TestBDDGenerator:
     """Test cases for BDD Generator tool."""

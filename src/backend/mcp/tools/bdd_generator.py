@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
 # Import schemas
-from ..schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
+from ..schemas.tool_schemas import BDDRequest, BDDResponse
 from ..config.settings import settings
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.bdd_generator")
@@ -54,10 +54,12 @@ async def generate_bdd_scenario(
     
     try:
         # Validate request
-        request = BDDGeneratorRequest(
+        request = BDDRequest(
             user_story=user_story,
-            context=feature_context,
-            additional_requirements=acceptance_criteria
+            acceptance_criteria=acceptance_criteria,
+            feature_context=feature_context,
+            existing_scenarios=existing_scenarios or [],
+            scenario_type=scenario_type
         )
         
         # Build the prompt for OpenAI
@@ -87,7 +89,7 @@ async def generate_bdd_scenario(
         analysis = await _analyze_generated_scenario(gherkin_scenario, request)
         
         # Create response
-        bdd_response = BDDGeneratorResponse(
+        bdd_response = BDDResponse(
             gherkin_scenario=gherkin_scenario,
             confidence_score=analysis["confidence_score"],
             suggestions=analysis["suggestions"],
@@ -118,28 +120,36 @@ async def generate_bdd_scenario(
         }
 
 
-def _build_bdd_prompt(request: BDDGeneratorRequest) -> str:
+def _build_bdd_prompt(request: BDDRequest) -> str:
     """Build the prompt for BDD scenario generation."""
     
     prompt_parts = [
         f"Generate a BDD scenario for the following user story:",
         f"User Story: {request.user_story}",
         "",
-        "Additional Requirements:"
+        "Acceptance Criteria:"
     ]
     
-    for i, requirement in enumerate(request.additional_requirements, 1):
-        prompt_parts.append(f"{i}. {requirement}")
+    for i, criteria in enumerate(request.acceptance_criteria, 1):
+        prompt_parts.append(f"{i}. {criteria}")
     
-    if request.context:
+    if request.feature_context:
         prompt_parts.extend([
             "",
-            f"Context: {request.context}"
+            f"Feature Context: {request.feature_context}"
         ])
+    
+    if request.existing_scenarios:
+        prompt_parts.extend([
+            "",
+            "Existing Scenarios (for reference):"
+        ])
+        for scenario in request.existing_scenarios:
+            prompt_parts.append(f"- {scenario}")
     
     prompt_parts.extend([
         "",
-        "Please generate a scenario in Gherkin format.",
+        f"Please generate a {request.scenario_type} in Gherkin format.",
         "Include appropriate Given-When-Then steps.",
         "Make the scenario clear, testable, and focused.",
         "Include relevant tags if appropriate.",
@@ -150,7 +160,7 @@ def _build_bdd_prompt(request: BDDGeneratorRequest) -> str:
     return "\n".join(prompt_parts)
 
 
-async def _analyze_generated_scenario(gherkin_scenario: str, request: BDDGeneratorRequest) -> Dict[str, Any]:
+async def _analyze_generated_scenario(gherkin_scenario: str, request: BDDRequest) -> Dict[str, Any]:
     """Analyze the generated scenario for quality and provide suggestions."""
     
     # Simple analysis - in production this could be more sophisticated
@@ -172,7 +182,7 @@ async def _analyze_generated_scenario(gherkin_scenario: str, request: BDDGenerat
     if "error" not in gherkin_scenario.lower() and "invalid" not in gherkin_scenario.lower():
         analysis["suggestions"].append("Consider adding negative test scenarios")
     
-    if len(request.additional_requirements) > 3:
+    if len(request.acceptance_criteria) > 3:
         analysis["suggestions"].append("Consider breaking down into multiple scenarios")
     
     # Generate tags based on user story content

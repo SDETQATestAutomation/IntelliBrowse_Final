@@ -1,8 +1,7 @@
 """
-Close Browser Tool Schemas
+Close Browser Tool Schemas.
 
-Schemas for the browser session termination tool that properly closes
-and cleans up Playwright browser sessions.
+Pydantic schemas for closing a browser session request and response validation.
 """
 
 from typing import Dict, Any

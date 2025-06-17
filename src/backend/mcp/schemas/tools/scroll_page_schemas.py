@@ -1,8 +1,7 @@
 """
-Scroll Page Tool Schemas
+Scroll Page Tool Schemas.
 
-Schemas for the page scrolling tool that performs scroll operations
-with directional control, element targeting, and smooth scrolling options.
+Pydantic schemas for scroll page operation request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -51,11 +50,11 @@ class ScrollPageResponse(BaseModel):
             "example": {
                 "success": True,
                 "session_id": "session_12345",
-                "scroll_position": {"x": 0, "y": 750},
+                "scroll_position": {"x": 0, "y": 1200},
                 "scrolled_element": None,
-                "scroll_type": "directional_scroll",
-                "message": "Scrolled down successfully",
-                "elapsed_ms": 200,
+                "scroll_type": "directional",
+                "message": "Page scrolled successfully",
+                "elapsed_ms": 150,
                 "metadata": {
                     "direction": "down",
                     "pixels_scrolled": 500,

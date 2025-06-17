@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
 # Import schemas
-from ..schemas.tools.locator_generator_schemas import LocatorGeneratorRequest, LocatorGeneratorResponse
+from ..schemas.tool_schemas import LocatorRequest, LocatorResponse
 from ..config.settings import settings
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.locator_generator")
@@ -52,7 +52,7 @@ async def generate_element_locator(
     
     try:
         # Validate request
-        request = LocatorGeneratorRequest(
+        request = LocatorRequest(
             dom_snapshot=dom_snapshot,
             element_description=element_description,
             locator_strategy=locator_strategy,
@@ -99,7 +99,7 @@ async def generate_element_locator(
         }
 
 
-def _generate_rule_based_locator(request: LocatorGeneratorRequest) -> Dict[str, Any]:
+def _generate_rule_based_locator(request: LocatorRequest) -> Dict[str, Any]:
     """Generate locator using rule-based DOM analysis."""
     
     dom = request.dom_snapshot
@@ -178,7 +178,7 @@ def _generate_rule_based_locator(request: LocatorGeneratorRequest) -> Dict[str, 
     }
 
 
-async def _generate_ai_locator(request: LocatorGeneratorRequest) -> Dict[str, Any]:
+async def _generate_ai_locator(request: LocatorRequest) -> Dict[str, Any]:
     """Generate locator using AI analysis."""
     
     # Build prompt for AI locator generation
@@ -233,7 +233,7 @@ async def _generate_ai_locator(request: LocatorGeneratorRequest) -> Dict[str, An
         }
 
 
-def _build_locator_prompt(request: LocatorGeneratorRequest) -> str:
+def _build_locator_prompt(request: LocatorRequest) -> str:
     """Build prompt for AI locator generation."""
     
     prompt_parts = [

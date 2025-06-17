@@ -32,8 +32,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
-# Import schemas - use modular schema imports
-from src.backend.mcp.schemas.tools.type_text_schemas import TypeTextRequest, TypeTextResponse
+# Import schemas - use absolute import to avoid relative import issues
+sys.path.append(str(Path(__file__).parent.parent / "schemas"))
+from tool_schemas import TypeTextRequest, TypeTextResponse
 
 # Import browser session utilities - use absolute import
 sys.path.append(str(Path(__file__).parent))

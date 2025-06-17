@@ -1,8 +1,7 @@
 """
-Step Generator Tool Schemas
+Step Generator Tool Schemas.
 
-Schemas for the test step generation tool that creates test steps
-(Gherkin or automation) from natural language descriptions.
+Pydantic schemas for test step generation tool request and response validation.
 """
 
 from typing import List, Optional, Dict, Any

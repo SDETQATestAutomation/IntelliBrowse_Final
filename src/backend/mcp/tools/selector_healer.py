@@ -27,7 +27,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
-from ..schemas.tools.selector_healer_schemas import SelectorHealerRequest, SelectorHealerResponse
+from ..schemas.tool_schemas import SelectorHealerRequest, SelectorHealerResponse
 from ..config.settings import get_settings
 
 # Configure logging

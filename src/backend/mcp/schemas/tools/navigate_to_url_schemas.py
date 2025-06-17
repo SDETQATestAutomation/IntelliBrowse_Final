@@ -1,8 +1,7 @@
 """
-Navigate to URL Tool Schemas
+Navigate to URL Tool Schemas.
 
-Schemas for the URL navigation tool that navigates browser sessions
-to specified URLs with configurable wait conditions and timeouts.
+Pydantic schemas for navigating to a URL within a browser session request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -22,7 +21,7 @@ class NavigateToUrlRequest(BaseModel):
             "example": {
                 "session_id": "session_12345",
                 "url": "https://example.com/login",
-                "timeout_ms": 15000,
+                "timeout_ms": 10000,
                 "wait_until": "domcontentloaded"
             }
         }
@@ -45,11 +44,11 @@ class NavigateToUrlResponse(BaseModel):
                 "http_status": 200,
                 "final_url": "https://example.com/login",
                 "message": "Navigation completed successfully",
-                "elapsed_ms": 2350,
+                "elapsed_ms": 1250,
                 "metadata": {
                     "redirects": 0,
-                    "load_event_fired": True,
-                    "dom_content_loaded": True
+                    "load_time": 1.25,
+                    "dom_ready": True
                 }
             }
         } 

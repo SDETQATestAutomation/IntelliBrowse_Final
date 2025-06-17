@@ -17,8 +17,8 @@ sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
 # Import schemas - use absolute import to avoid relative import issues
-# Import schemas
-from ..schemas.tools.get_page_dom_schemas import GetPageDomRequest, GetPageDomResponse
+sys.path.append(str(Path(__file__).parent.parent / "schemas"))
+from tool_schemas import GetPageDomRequest, GetPageDomResponse
 
 # Import browser session utilities - use absolute import
 sys.path.append(str(Path(__file__).parent))

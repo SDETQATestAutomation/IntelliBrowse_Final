@@ -1,8 +1,7 @@
 """
-Open Browser Tool Schemas
+Open Browser Tool Schemas.
 
-Schemas for the browser session initialization tool that creates new
-Playwright browser sessions with configurable options.
+Pydantic schemas for opening a new browser session request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -26,7 +25,7 @@ class OpenBrowserRequest(BaseModel):
                 "browser_type": "chromium",
                 "viewport_width": 1920,
                 "viewport_height": 1080,
-                "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                 "extra_http_headers": {"Accept-Language": "en-US,en;q=0.9"}
             }
         }
@@ -49,11 +48,7 @@ class OpenBrowserResponse(BaseModel):
                 "browser_type": "chromium",
                 "headless": True,
                 "viewport": {"width": 1920, "height": 1080},
-                "message": "Browser session opened successfully",
-                "metadata": {
-                    "created_at": "2024-01-08T10:00:00Z",
-                    "user_agent": "Mozilla/5.0...",
-                    "version": "chromium/120.0.0.0"
-                }
+                "message": "Browser session created successfully",
+                "metadata": {"created_at": "2024-01-08T10:30:00Z", "user_agent": "Mozilla/5.0..."}
             }
         } 

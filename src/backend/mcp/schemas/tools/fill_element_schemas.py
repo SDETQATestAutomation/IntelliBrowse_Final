@@ -1,8 +1,7 @@
 """
-Fill Element Tool Schemas
+Fill Element Tool Schemas.
 
-Schemas for the element filling tool that inputs text into form fields
-with options for clearing, timing, and force operations.
+Pydantic schemas for filling input elements with text request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -25,10 +24,10 @@ class FillElementRequest(BaseModel):
             "example": {
                 "session_id": "session_12345",
                 "selector": "#username",
-                "value": "testuser@example.com",
+                "value": "john.doe@example.com",
                 "timeout_ms": 5000,
                 "clear_first": True,
-                "delay_ms": 100,
+                "delay_ms": 50,
                 "force": False
             }
         }
@@ -50,14 +49,14 @@ class FillElementResponse(BaseModel):
             "example": {
                 "success": True,
                 "selector": "#username",
-                "value": "testuser@example.com",
+                "value": "john.doe@example.com",
                 "message": "Element filled successfully",
                 "cleared_first": True,
-                "elapsed_ms": 180,
+                "elapsed_ms": 120,
                 "metadata": {
-                    "element_type": "email",
+                    "element_type": "input",
                     "original_value": "",
-                    "final_value": "testuser@example.com"
+                    "final_value": "john.doe@example.com"
                 }
             }
         } 

@@ -1,8 +1,7 @@
 """
-Clear Input Field Tool Schemas
+Clear Input Field Tool Schemas.
 
-Schemas for the input field clearing tool that clears text content
-from input fields with verification and force options.
+Pydantic schemas for clearing input field values request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -51,11 +50,11 @@ class ClearInputFieldResponse(BaseModel):
                 "was_cleared": True,
                 "original_value": "previous search term",
                 "final_value": "",
-                "elapsed_ms": 120,
+                "elapsed_ms": 75,
                 "metadata": {
-                    "element_type": "search",
-                    "clear_method": "select_all_delete",
-                    "verified": True
+                    "clearing_method": "selectall_delete",
+                    "element_type": "input",
+                    "verification_passed": True
                 }
             }
         } 

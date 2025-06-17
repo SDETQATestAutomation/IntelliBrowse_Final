@@ -1,8 +1,7 @@
 """
-BDD Generator Tool Schemas
+BDD Generator Tool Schemas.
 
-Schemas for the BDD scenario generation tool that creates Gherkin scenarios
-from user stories and requirements.
+Pydantic schemas for BDD scenario generation tool request and response validation.
 """
 
 from typing import List, Optional, Dict, Any

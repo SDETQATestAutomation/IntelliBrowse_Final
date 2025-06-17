@@ -19,8 +19,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
-# Import schemas - use modular schema imports
-from src.backend.mcp.schemas.tools.fill_element_schemas import FillElementRequest, FillElementResponse
+# Import schemas - use absolute import to avoid relative import issues
+sys.path.append(str(Path(__file__).parent.parent / "schemas"))
+from tool_schemas import FillElementRequest, FillElementResponse
 
 # Import browser session utilities - use absolute import
 sys.path.append(str(Path(__file__).parent))

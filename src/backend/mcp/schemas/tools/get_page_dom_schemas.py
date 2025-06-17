@@ -1,8 +1,7 @@
 """
-Get Page DOM Tool Schemas
+Get Page DOM Tool Schemas.
 
-Schemas for the DOM extraction tool that retrieves HTML content
-from browser sessions with optional element targeting and size limits.
+Pydantic schemas for getting page DOM content request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -22,7 +21,7 @@ class GetPageDomRequest(BaseModel):
             "example": {
                 "session_id": "session_12345",
                 "selector": ".main-content",
-                "outer_html": True,
+                "outer_html": False,
                 "max_length": 50000
             }
         }
@@ -41,15 +40,15 @@ class GetPageDomResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "html_content": "<div class='main-content'><h1>Welcome</h1><p>Content here...</p></div>",
+                "html_content": "<div class='main-content'>...<form>...</form>...</div>",
                 "truncated": False,
                 "selector_used": ".main-content",
-                "message": "DOM content extracted successfully",
-                "content_length": 1250,
+                "message": "DOM content retrieved successfully",
+                "content_length": 15420,
                 "metadata": {
                     "extraction_time": 0.15,
-                    "element_count": 45,
-                    "document_ready_state": "complete"
+                    "elements_found": 127,
+                    "dom_ready": True
                 }
             }
         } 

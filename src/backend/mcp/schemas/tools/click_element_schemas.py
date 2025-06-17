@@ -1,8 +1,7 @@
 """
-Click Element Tool Schemas
+Click Element Tool Schemas.
 
-Schemas for the element clicking tool that performs various types of clicks
-on DOM elements with configurable timing and force options.
+Pydantic schemas for clicking a DOM element request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -23,7 +22,7 @@ class ClickElementRequest(BaseModel):
         json_schema_extra = {
             "example": {
                 "session_id": "session_12345",
-                "selector": "#submit-btn",
+                "selector": "#submit-button",
                 "timeout_ms": 5000,
                 "click_type": "single",
                 "delay_ms": 100,
@@ -46,14 +45,14 @@ class ClickElementResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "success": True,
-                "selector": "#submit-btn",
+                "selector": "#submit-button",
                 "message": "Element clicked successfully",
                 "click_type": "single",
-                "elapsed_ms": 250,
+                "elapsed_ms": 150,
                 "metadata": {
                     "element_visible": True,
                     "element_enabled": True,
-                    "coordinates": {"x": 150, "y": 300}
+                    "coordinates": {"x": 100, "y": 200}
                 }
             }
         } 

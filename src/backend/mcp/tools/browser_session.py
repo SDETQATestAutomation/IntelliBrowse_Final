@@ -19,8 +19,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
 # Import schemas
-from ..schemas.tools.open_browser_schemas import OpenBrowserRequest, OpenBrowserResponse
-from ..schemas.tools.close_browser_schemas import CloseBrowserRequest, CloseBrowserResponse
+from ..schemas.tool_schemas import OpenBrowserRequest, OpenBrowserResponse, CloseBrowserRequest, CloseBrowserResponse, NavigateToUrlRequest, NavigateToUrlResponse
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.browser_session")
 

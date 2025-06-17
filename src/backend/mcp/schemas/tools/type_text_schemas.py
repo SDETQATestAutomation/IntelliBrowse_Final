@@ -1,8 +1,7 @@
 """
-Type Text Tool Schemas
+Type Text Tool Schemas.
 
-Schemas for the text typing tool that types text character by character
-into input elements with configurable delays and clearing options.
+Pydantic schemas for typing text into input elements character by character request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -24,7 +23,7 @@ class TypeTextRequest(BaseModel):
             "example": {
                 "session_id": "session_12345",
                 "selector": "#password",
-                "text": "mySecurePassword123",
+                "text": "SecurePassword123",
                 "timeout_ms": 5000,
                 "clear_before": True,
                 "delay_ms": 50
@@ -49,15 +48,15 @@ class TypeTextResponse(BaseModel):
             "example": {
                 "success": True,
                 "selector": "#password",
-                "text": "mySecurePassword123",
+                "text": "SecurePassword123",
                 "message": "Text typed successfully",
                 "cleared_before": True,
-                "characters_typed": 19,
-                "elapsed_ms": 1450,
+                "characters_typed": 17,
+                "elapsed_ms": 850,
                 "metadata": {
-                    "typing_speed": "50ms_per_char",
-                    "element_type": "password",
-                    "keystrokes_sent": 19
+                    "typing_speed": 20.0,
+                    "element_focused": True,
+                    "input_type": "password"
                 }
             }
         } 

@@ -1,8 +1,7 @@
 """
-Hover Element Tool Schemas
+Hover Element Tool Schemas.
 
-Schemas for the element hovering tool that performs mouse hover operations
-on DOM elements with position control, timing, and force options.
+Pydantic schemas for hovering over a DOM element request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -27,7 +26,7 @@ class HoverElementRequest(BaseModel):
                 "timeout_ms": 5000,
                 "delay_ms": 200,
                 "force": False,
-                "position": {"x": 50, "y": 25}
+                "position": {"x": 10, "y": 10}
             }
         }
 
@@ -50,12 +49,12 @@ class HoverElementResponse(BaseModel):
                 "selector": ".dropdown-trigger",
                 "message": "Element hovered successfully",
                 "hovered": True,
-                "position": {"x": 50, "y": 25},
+                "position": {"x": 10, "y": 10},
                 "elapsed_ms": 120,
                 "metadata": {
                     "element_visible": True,
-                    "hover_effect_triggered": True,
-                    "dropdown_opened": True
+                    "dropdown_opened": True,
+                    "element_bounds": {"width": 120, "height": 30}
                 }
             }
         } 

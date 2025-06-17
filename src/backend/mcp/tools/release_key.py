@@ -2,27 +2,27 @@
 Release Key Tool for IntelliBrowse MCP Server.
 
 This module provides keyboard key release simulation functionality for Playwright 
-browser sessions, enabling the release of held-down keys (especially modifier keys)
-with comprehensive validation, element focus support, and detailed operation tracking.
+browser sessions, enabling release of held-down keys for complex key combinations,
+accessibility testing, and advanced keyboard interaction workflows with comprehensive 
+validation and detailed operation tracking.
 
 Key Features:
 - Single key release simulation using Playwright keyboard events
-- Support for releasing modifier keys (Control, Shift, Alt, Meta)
+- Support for releasing modifier keys and special keys
 - Optional element focus before key release
-- Comprehensive key validation and release verification
+- Comprehensive key validation and state management
 - Session-based key release history tracking for audit compliance
 - Element state validation and interaction verification
 - Error handling with structured responses and classification
-- Support for special keys (Enter, Tab, Arrow keys, Function keys, etc.)
+- Support for releasing keys in held key combinations
 
 Author: IntelliBrowse MCP Server
 Version: 1.0.0
 """
 
-import asyncio
 import time
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import structlog
 from playwright.async_api import Page, Error as PlaywrightError, TimeoutError as PlaywrightTimeoutError
 from pydantic import ValidationError
@@ -33,31 +33,28 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from main import mcp_server
 
-# Import schemas
-from ..schemas.tools.release_key_schemas import ReleaseKeyRequest, ReleaseKeyResponse
+# Import schemas - use absolute import to avoid relative import issues
+sys.path.append(str(Path(__file__).parent.parent / "schemas"))
+from tool_schemas import ReleaseKeyRequest, ReleaseKeyResponse
 
-# Import browser session utilities
-from .browser_session import browser_sessions
+# Import browser session utilities - use absolute import
+sys.path.append(str(Path(__file__).parent))
+from browser_session import browser_sessions
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.release_key")
 
-# Valid modifier keys that can be released
-VALID_MODIFIER_KEYS = [
-    "Control", "Shift", "Alt", "Meta", "ControlOrMeta"
-]
-
-# Common keys that can be released (especially useful for long-press scenarios)
+# Valid keys that can be released (primarily modifier and special keys)
 RELEASABLE_KEYS = {
-    # Modifier keys
+    # Modifier keys (most common for release operations)
     "Control", "Shift", "Alt", "Meta", "ControlOrMeta",
+    
+    # Special keys that can be held down
+    "Enter", "Tab", "Escape", "Space", "Backspace", "Delete",
+    "Insert", 
     
     # Navigation keys
     "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
     "Home", "End", "PageUp", "PageDown",
-    
-    # Editing keys
-    "Enter", "Tab", "Escape", "Space", "Backspace", "Delete",
-    "Insert",
     
     # Function keys
     "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
@@ -78,12 +75,12 @@ RELEASABLE_KEYS = {
     "ContextMenu"
 }
 
-# Character keys - letters, numbers, symbols that can be released
+# Character keys that can also be released
 CHARACTER_KEYS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 SYMBOL_KEYS = set("!@#$%^&*()_+-=[]{}|\\:;\"'<>?,./`~")
 
 # Maximum reasonable delay after key release
-MAX_DELAY_AFTER_MS = 5000
+MAX_RELEASE_DELAY_MS = 5000
 
 
 @mcp_server.tool()
@@ -97,11 +94,11 @@ async def release_key(
     verify_release: Optional[bool] = True
 ) -> Dict[str, Any]:
     """
-    Release a held-down keyboard key with optional element focus and verification.
+    Release a held-down keyboard key with optional element focus and validation.
     
-    This tool provides comprehensive keyboard key release simulation for Playwright 
-    browser sessions, with support for modifier keys, element focus management, 
-    release verification, and detailed operation tracking for automation workflows.
+    This tool provides key release simulation for Playwright browser sessions,
+    essential for complex key combinations, accessibility testing, and advanced
+    keyboard interaction workflows where keys need to be released individually.
     
     Args:
         session_id: Browser session identifier for the target session
@@ -183,33 +180,12 @@ async def release_key(
                 metadata={
                     "error": "UNSUPPORTED_KEY",
                     "key": key,
-                    "supported_keys": list(RELEASABLE_KEYS),
+                    "supported_releasable_keys": list(RELEASABLE_KEYS),
                     "operation_time_ms": elapsed_ms
                 }
             ).dict()
         
-        # Validate delay
-        if delay_after_ms and delay_after_ms > MAX_DELAY_AFTER_MS:
-            elapsed_ms = int((time.monotonic() - start_time) * 1000)
-            logger.error("Delay too large", delay_after_ms=delay_after_ms)
-            return ReleaseKeyResponse(
-                success=False,
-                session_id=session_id,
-                key=key,
-                selector=selector,
-                message=f"Delay after key release too large: {delay_after_ms}ms. Maximum allowed: {MAX_DELAY_AFTER_MS}ms",
-                key_released=False,
-                focused_element=False,
-                elapsed_ms=elapsed_ms,
-                metadata={
-                    "error": "DELAY_TOO_LARGE",
-                    "requested_delay": delay_after_ms,
-                    "max_delay": MAX_DELAY_AFTER_MS,
-                    "operation_time_ms": elapsed_ms
-                }
-            ).dict()
-        
-        # Get browser session
+        # Check if session exists
         if session_id not in browser_sessions:
             elapsed_ms = int((time.monotonic() - start_time) * 1000)
             logger.error("Browser session not found", session_id=session_id)
@@ -225,52 +201,104 @@ async def release_key(
                 metadata={
                     "error": "SESSION_NOT_FOUND",
                     "session_id": session_id,
-                    "available_sessions": list(browser_sessions.keys()),
                     "operation_time_ms": elapsed_ms
                 }
             ).dict()
         
-        session_data = browser_sessions[session_id]
-        page: Page = session_data["page"]
+        session = browser_sessions[session_id]
+        page: Page = session["page"]
         
-        # Check if page is still valid
-        if page.is_closed():
+        # Verify page is still active
+        try:
+            await page.title()  # Simple check to ensure page is responsive
+        except PlaywrightError as e:
             elapsed_ms = int((time.monotonic() - start_time) * 1000)
-            logger.error("Page is closed", session_id=session_id)
+            logger.error("Page is not active", session_id=session_id, error=str(e))
             return ReleaseKeyResponse(
                 success=False,
                 session_id=session_id,
                 key=key,
                 selector=selector,
-                message=f"Page for session {session_id} is closed",
+                message=f"Page is not active or accessible: {str(e)}",
                 key_released=False,
                 focused_element=False,
                 elapsed_ms=elapsed_ms,
                 metadata={
-                    "error": "PAGE_CLOSED",
-                    "session_id": session_id,
+                    "error": "PAGE_NOT_ACTIVE",
+                    "error_details": str(e),
                     "operation_time_ms": elapsed_ms
                 }
             ).dict()
         
+        # Handle element focus if selector is provided
         focused_element = False
+        element_info = {}
         
-        # Focus element if selector provided and focus_first is True
         if selector and focus_first:
             try:
-                logger.info("Focusing element before key release", selector=selector)
-                await page.focus(selector, timeout=timeout_ms)
+                logger.info("Focusing element before key release", selector=selector, timeout_ms=timeout_ms)
+                
+                # Wait for element to be present and visible
+                element = await page.wait_for_selector(
+                    selector,
+                    timeout=timeout_ms,
+                    state="visible"
+                )
+                
+                if not element:
+                    elapsed_ms = int((time.monotonic() - start_time) * 1000)
+                    logger.error("Element not found for focus", selector=selector)
+                    return ReleaseKeyResponse(
+                        success=False,
+                        session_id=session_id,
+                        key=key,
+                        selector=selector,
+                        message=f"Element not found for focus: {selector}",
+                        key_released=False,
+                        focused_element=False,
+                        elapsed_ms=elapsed_ms,
+                        metadata={
+                            "error": "ELEMENT_NOT_FOUND",
+                            "selector": selector,
+                            "timeout_ms": timeout_ms,
+                            "operation_time_ms": elapsed_ms
+                        }
+                    ).dict()
+                
+                # Focus the element
+                await element.focus(timeout=timeout_ms)
                 focused_element = True
-                logger.info("Element focused successfully", selector=selector)
-            except PlaywrightTimeoutError:
+                
+                # Get element information for metadata
+                try:
+                    element_tag = await element.evaluate("el => el.tagName.toLowerCase()")
+                    element_type = await element.evaluate("el => el.type || ''")
+                    element_id = await element.evaluate("el => el.id || ''")
+                    element_class = await element.evaluate("el => el.className || ''")
+                    element_bounds = await element.bounding_box()
+                    
+                    element_info = {
+                        "tag": element_tag,
+                        "type": element_type,
+                        "id": element_id,
+                        "class": element_class,
+                        "bounds": element_bounds,
+                        "focused": True
+                    }
+                except PlaywrightError:
+                    element_info = {"focused": True}
+                
+                logger.info("Element focused successfully", selector=selector, element_tag=element_tag)
+                
+            except PlaywrightTimeoutError as te:
                 elapsed_ms = int((time.monotonic() - start_time) * 1000)
-                logger.error("Timeout focusing element", selector=selector, timeout_ms=timeout_ms)
+                logger.error("Element focus timed out", selector=selector, timeout_ms=timeout_ms, error=str(te))
                 return ReleaseKeyResponse(
                     success=False,
                     session_id=session_id,
                     key=key,
                     selector=selector,
-                    message=f"Timeout focusing element: {selector} (timeout: {timeout_ms}ms)",
+                    message=f"Element focus timed out after {timeout_ms}ms: {selector}",
                     key_released=False,
                     focused_element=False,
                     elapsed_ms=elapsed_ms,
@@ -278,171 +306,206 @@ async def release_key(
                         "error": "FOCUS_TIMEOUT",
                         "selector": selector,
                         "timeout_ms": timeout_ms,
+                        "error_details": str(te),
                         "operation_time_ms": elapsed_ms
                     }
                 ).dict()
-            except PlaywrightError as e:
+                
+            except PlaywrightError as pe:
                 elapsed_ms = int((time.monotonic() - start_time) * 1000)
-                logger.error("Error focusing element", selector=selector, error=str(e))
+                error_message = str(pe)
+                logger.error("Element focus failed", selector=selector, error=error_message)
                 return ReleaseKeyResponse(
                     success=False,
                     session_id=session_id,
                     key=key,
                     selector=selector,
-                    message=f"Error focusing element {selector}: {str(e)}",
+                    message=f"Element focus failed: {error_message}",
                     key_released=False,
                     focused_element=False,
                     elapsed_ms=elapsed_ms,
                     metadata={
-                        "error": "FOCUS_ERROR",
+                        "error": "FOCUS_FAILED",
                         "selector": selector,
-                        "error_details": str(e),
+                        "error_details": error_message,
                         "operation_time_ms": elapsed_ms
                     }
                 ).dict()
         
-        # Release the key
+        # Perform the key release operation
+        key_release_start_time = time.monotonic()
         key_released = False
-        release_verified = False
         
         try:
-            logger.info("Releasing key", key=key)
+            logger.info("Performing key release", key=key)
+            
+            # Release the key
             await page.keyboard.up(key)
             key_released = True
-            logger.info("Key released successfully", key=key)
             
-            # Verify release if requested
-            if verify_release:
-                # Note: Playwright doesn't provide direct key state verification,
-                # but we can check if the operation completed without error
-                release_verified = True
-                logger.info("Key release verified", key=key)
+            key_release_elapsed_ms = int((time.monotonic() - key_release_start_time) * 1000)
             
-        except PlaywrightError as e:
+            # Apply post-key-release delay if specified
+            if delay_after_ms > 0:
+                await page.wait_for_timeout(delay_after_ms)
+            
+            # Update session key release history
+            if "key_release_history" not in session:
+                session["key_release_history"] = []
+            
+            key_operation = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "key": key,
+                "selector": selector,
+                "focused_element": focused_element,
+                "key_release_time_ms": key_release_elapsed_ms,
+                "delay_after_ms": delay_after_ms,
+                "verify_release": verify_release,
+                "success": True
+            }
+            
+            session["key_release_history"].append(key_operation)
+            
+            # Keep only last 50 key release operations
+            if len(session["key_release_history"]) > 50:
+                session["key_release_history"] = session["key_release_history"][-50:]
+            
+            # Calculate total elapsed time
+            total_elapsed_ms = int((time.monotonic() - start_time) * 1000)
+            
+            # Prepare success message
+            message = f"Successfully released key '{key}'"
+            if selector and focused_element:
+                message += f" on element '{selector}'"
+            
+            # Get page context
+            try:
+                page_url = await page.url()
+                page_title = await page.title()
+            except PlaywrightError:
+                page_url = ""
+                page_title = ""
+            
+            # Collect comprehensive metadata
+            metadata = {
+                "operation_type": "release_key",
+                "timestamp": datetime.utcnow().isoformat(),
+                "session_id": session_id,
+                "key_details": {
+                    "key": key,
+                    "key_type": "releasable" if key in RELEASABLE_KEYS else "character",
+                    "is_modifier": key in ["Control", "Shift", "Alt", "Meta", "ControlOrMeta"]
+                },
+                "element_interaction": {
+                    "selector": selector,
+                    "focused_element": focused_element,
+                    "focus_first": focus_first,
+                    "element_info": element_info
+                },
+                "timing": {
+                    "total_operation_ms": total_elapsed_ms,
+                    "key_release_ms": key_release_elapsed_ms,
+                    "delay_after_ms": delay_after_ms,
+                    "focus_time_ms": total_elapsed_ms - key_release_elapsed_ms - delay_after_ms
+                },
+                "verification": {
+                    "verify_release": verify_release,
+                    "verification_performed": verify_release
+                },
+                "page_context": {
+                    "url": page_url,
+                    "title": page_title
+                }
+            }
+            
+            logger.info(
+                "Key release operation completed successfully",
+                key=key,
+                selector=selector,
+                focused_element=focused_element,
+                total_elapsed_ms=total_elapsed_ms
+            )
+            
+            # Return successful response
+            return ReleaseKeyResponse(
+                success=True,
+                session_id=session_id,
+                key=key,
+                selector=selector,
+                message=message,
+                key_released=key_released,
+                focused_element=focused_element,
+                elapsed_ms=total_elapsed_ms,
+                metadata=metadata
+            ).dict()
+            
+        except PlaywrightError as pe:
             elapsed_ms = int((time.monotonic() - start_time) * 1000)
-            logger.error("Error releasing key", key=key, error=str(e))
+            error_message = str(pe)
+            logger.error("Key release operation failed", key=key, error=error_message)
             return ReleaseKeyResponse(
                 success=False,
                 session_id=session_id,
                 key=key,
                 selector=selector,
-                message=f"Error releasing key '{key}': {str(e)}",
-                key_released=False,
+                message=f"Key release operation failed: {error_message}",
+                key_released=key_released,
                 focused_element=focused_element,
                 elapsed_ms=elapsed_ms,
                 metadata={
-                    "error": "KEY_RELEASE_ERROR",
-                    "key": key,
-                    "error_details": str(e),
-                    "operation_time_ms": elapsed_ms
+                    "error": "KEY_RELEASE_FAILED",
+                    "error_details": error_message,
+                    "operation_time_ms": elapsed_ms,
+                    "key": key
                 }
             ).dict()
-        
-        # Apply delay if specified
-        if delay_after_ms and delay_after_ms > 0:
-            logger.info("Applying delay after key release", delay_ms=delay_after_ms)
-            await asyncio.sleep(delay_after_ms / 1000.0)
-        
+            
+    except ValidationError as ve:
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
-        
-        # Get current URL for context
-        current_url = "unknown"
-        try:
-            current_url = page.url
-        except:
-            pass  # Page might be closed or in invalid state
-        
-        # Determine active element type for metadata
-        active_element_type = "unknown"
-        try:
-            if focused_element and selector:
-                element = await page.query_selector(selector)
-                if element:
-                    tag_name = await element.evaluate("el => el.tagName")
-                    active_element_type = tag_name.lower() if tag_name else "unknown"
-        except:
-            pass  # Element might not exist or be accessible
-        
-        # Create success response
-        logger.info(
-            "Key release operation completed successfully",
-            session_id=session_id,
-            key=key,
-            key_released=key_released,
-            focused_element=focused_element,
-            elapsed_ms=elapsed_ms
-        )
-        
-        # Add to session history for audit
-        if "key_release_history" not in session_data:
-            session_data["key_release_history"] = []
-        
-        session_data["key_release_history"].append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "key": key,
-            "selector": selector,
-            "focused_element": focused_element,
-            "success": True,
-            "elapsed_ms": elapsed_ms
-        })
-        
-        response = ReleaseKeyResponse(
-            success=True,
-            session_id=session_id,
-            key=key,
-            selector=selector,
-            message=f"Key '{key}' released successfully",
-            key_released=key_released,
-            focused_element=focused_element,
-            elapsed_ms=elapsed_ms,
-            metadata={
-                "key_code": key,
-                "release_verified": release_verified,
-                "active_element": active_element_type,
-                "current_url": current_url,
-                "delay_applied_ms": delay_after_ms if delay_after_ms else 0,
-                "operation_time_ms": elapsed_ms,
-                "timestamp": datetime.utcnow().isoformat(),
-                "session_history_count": len(session_data.get("key_release_history", []))
-            }
-        )
-        
-        return response.dict()
-        
-    except ValidationError as e:
-        elapsed_ms = int((time.monotonic() - start_time) * 1000)
-        logger.error("Request validation error", error=str(e))
+        validation_errors = str(ve)
+        logger.error("Request validation failed", error=validation_errors, elapsed_ms=elapsed_ms)
         return ReleaseKeyResponse(
             success=False,
             session_id=session_id,
             key=key,
             selector=selector,
-            message=f"Request validation error: {str(e)}",
+            message=f"Request validation failed: {validation_errors}",
             key_released=False,
             focused_element=False,
             elapsed_ms=elapsed_ms,
             metadata={
                 "error": "VALIDATION_ERROR",
-                "error_details": str(e),
+                "validation_details": validation_errors,
                 "operation_time_ms": elapsed_ms
             }
         ).dict()
         
     except Exception as e:
+        # Handle any unexpected errors
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
-        logger.error("Unexpected error in key release operation", error=str(e))
+        error_message = str(e)
+        
+        logger.error(
+            "Unexpected error during key release operation",
+            session_id=session_id,
+            key=key,
+            selector=selector,
+            error=error_message,
+            elapsed_ms=elapsed_ms
+        )
+        
         return ReleaseKeyResponse(
             success=False,
             session_id=session_id,
             key=key,
             selector=selector,
-            message=f"Unexpected error: {str(e)}",
+            message=f"Unexpected error during key release operation: {error_message}",
             key_released=False,
             focused_element=False,
             elapsed_ms=elapsed_ms,
             metadata={
                 "error": "UNEXPECTED_ERROR",
-                "error_details": str(e),
+                "error_details": error_message,
                 "operation_time_ms": elapsed_ms
             }
         ).dict()

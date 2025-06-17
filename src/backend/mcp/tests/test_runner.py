@@ -18,8 +18,10 @@ async def test_schema_validation():
     
     try:
         from src.backend.mcp.schemas.context_schemas import SessionContext, TaskContext, UserContext
-        from src.backend.mcp.schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
-        from src.backend.mcp.schemas.tools.locator_generator_schemas import LocatorGeneratorRequest, LocatorGeneratorResponse
+        from src.backend.mcp.schemas.tool_schemas import (
+            BDDGeneratorRequest, BDDGeneratorResponse,
+            LocatorGeneratorRequest, LocatorGeneratorResponse
+        )
         
         # Test SessionContext
         session_data = {

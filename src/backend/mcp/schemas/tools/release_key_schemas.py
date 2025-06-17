@@ -1,8 +1,7 @@
 """
-Release Key Tool Schemas
+Release Key Tool Schemas.
 
-Schemas for the key release tool that releases held-down keyboard keys
-with support for element focusing, verification, and configurable timing.
+Pydantic schemas for releasing held-down keyboard keys request and response validation.
 """
 
 from typing import Optional, Dict, Any
@@ -57,11 +56,11 @@ class ReleaseKeyResponse(BaseModel):
                 "message": "Key released successfully",
                 "key_released": True,
                 "focused_element": True,
-                "elapsed_ms": 80,
+                "elapsed_ms": 85,
                 "metadata": {
-                    "key_code": "Shift",
-                    "release_verified": True,
-                    "active_element": "input"
+                    "key_code": 16,
+                    "element_type": "input",
+                    "verification_passed": True
                 }
             }
         } 
