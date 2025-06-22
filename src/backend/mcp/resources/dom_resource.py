@@ -5,18 +5,17 @@ This resource provider exposes DOM snapshots, page structure information,
 and element context data for LLM analysis and tool operations.
 """
 
-import sys
-from pathlib import Path
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 import json
 import asyncio
 from datetime import datetime
 
-# Add the MCP server root to Python path
-sys.path.append(str(Path(__file__).parent.parent))
-
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 from schemas.context_schemas import SessionContext
 import structlog
 

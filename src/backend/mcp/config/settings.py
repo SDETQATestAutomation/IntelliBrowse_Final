@@ -6,7 +6,7 @@ All sensitive configuration comes from environment variables, no hardcoded secre
 """
 
 from typing import Optional, List
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -18,6 +18,7 @@ class MCPSettings(BaseSettings):
     # Server Configuration
     mcp_host: str = Field(default="127.0.0.1", description="MCP server host")
     mcp_port: int = Field(default=8001, description="MCP server port")
+    mcp_rest_port: int = Field(default=8002, description="REST API server port for legacy compatibility")
     mcp_transport: str = Field(default="sse", description="Transport protocol (sse, stdio)")
     
     # OpenAI Configuration
@@ -41,11 +42,11 @@ class MCPSettings(BaseSettings):
     # Session Configuration
     session_ttl_hours: int = Field(default=24, description="Session TTL in hours")
     session_cleanup_interval_minutes: int = Field(default=30, description="Session cleanup interval")
-    max_concurrent_sessions: int = Field(default=100, description="Max concurrent sessions per user")
+    max_concurrent_sessions: int = Field(default=1000, description="Maximum concurrent sessions")
     
     # RBAC Configuration
     default_user_role: str = Field(default="viewer", description="Default role for new users")
-    admin_users: List[str] = Field(default=[], description="List of admin user IDs")
+    admin_users: str = Field(default="", description="Comma-separated list of admin user IDs")
     
     # Audit Configuration
     audit_log_enabled: bool = Field(default=True, description="Enable audit logging")
@@ -65,10 +66,32 @@ class MCPSettings(BaseSettings):
     chroma_port: int = Field(default=8000, description="ChromaDB port")
     chroma_collection_name: str = Field(default="intellibrowse_sessions", description="ChromaDB collection")
     
+    # Vector Store Configuration (Enterprise ChromaDB Integration)
+    mcp_vector_persist_path: str = Field(default="./chroma_db", env="MCP_VECTOR_PERSIST_PATH", description="ChromaDB persistent storage path")
+    mcp_vector_embedding_model: str = Field(default="all-MiniLM-L6-v2", env="MCP_VECTOR_EMBEDDING_MODEL", description="Sentence transformer model for embeddings")
+    mcp_vector_dom_collection: str = Field(default="dom_elements", env="MCP_VECTOR_DOM_COLLECTION", description="DOM elements collection name")
+    mcp_vector_gherkin_collection: str = Field(default="gherkin_steps", env="MCP_VECTOR_GHERKIN_COLLECTION", description="Gherkin steps collection name")
+    mcp_vector_batch_size: int = Field(default=100, env="MCP_VECTOR_BATCH_SIZE", description="Batch size for bulk operations", ge=1, le=1000)
+    mcp_vector_max_results: int = Field(default=100, env="MCP_VECTOR_MAX_RESULTS", description="Maximum results per query", ge=1, le=1000)
+    mcp_vector_similarity_threshold: float = Field(default=0.7, env="MCP_VECTOR_SIMILARITY_THRESHOLD", description="Default similarity threshold", ge=0.0, le=1.0)
+    mcp_vector_enable_caching: bool = Field(default=True, env="MCP_VECTOR_ENABLE_CACHING", description="Enable result caching")
+    mcp_vector_cache_ttl: int = Field(default=300, env="MCP_VECTOR_CACHE_TTL", description="Cache TTL in seconds", ge=0)
+    
+    # Legacy ChromaDB Configuration (deprecated - use mcp_vector_* settings)
+    chroma_persist_path: str = Field(default="./chroma_db", description="ChromaDB persistent storage path")
+    chroma_dom_collection: str = Field(default="dom_elements", description="DOM elements collection name")
+    chroma_gherkin_collection: str = Field(default="gherkin_steps", description="Gherkin steps collection name")
+    chroma_embedding_model: str = Field(default="all-MiniLM-L6-v2", description="Sentence transformer model for embeddings")
+    chroma_max_results: int = Field(default=10, description="Maximum results returned by vector search")
+    chroma_similarity_threshold: float = Field(default=0.7, description="Similarity threshold for vector search")
+    chroma_collection_ttl_hours: int = Field(default=24, description="Collection TTL in hours")
+    chroma_enable_hnsw: bool = Field(default=True, description="Enable HNSW indexing for performance")
+    chroma_batch_size: int = Field(default=100, description="Batch size for bulk operations")
+    
     # Tool Configuration
-    enabled_tools: List[str] = Field(
-        default=["bdd_generator", "locator_generator", "step_generator", "selector_healer", "debug_analyzer"],
-        description="List of enabled tools"
+    enabled_tools: str = Field(
+        default="bdd_generator,locator_generator,step_generator,selector_healer,debug_analyzer",
+        description="Comma-separated list of enabled tools"
     )
     
     # Prompt Configuration
@@ -87,7 +110,16 @@ class MCPSettings(BaseSettings):
     debug_mode: bool = Field(default=False, description="Enable debug mode")
     enable_inspector: bool = Field(default=True, description="Enable MCP inspector")
     
-    @validator("log_level")
+    # Session Management
+    session_cleanup_interval_minutes: int = Field(default=30, description="Session cleanup interval")
+    
+    # State Management & Persistence
+    data_directory: str = Field(default="./data", description="Data directory for state persistence")
+    state_persistence_enabled: bool = Field(default=True, description="Enable state persistence")
+    state_cleanup_interval_hours: int = Field(default=6, description="State cleanup interval in hours")
+    
+    @field_validator("log_level")
+    @classmethod
     def validate_log_level(cls, v):
         """Validate log level."""
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -95,25 +127,50 @@ class MCPSettings(BaseSettings):
             raise ValueError(f"Log level must be one of {valid_levels}")
         return v.upper()
     
-    @validator("mcp_transport")
+    @field_validator("mcp_transport")
+    @classmethod
     def validate_transport(cls, v):
         """Validate MCP transport protocol."""
-        valid_transports = ["sse", "stdio"]
+        valid_transports = ["sse", "stdio", "streamable-http"]
         if v not in valid_transports:
             raise ValueError(f"Transport must be one of {valid_transports}")
         return v
     
-    @validator("openai_temperature")
+    @field_validator("openai_temperature")
+    @classmethod
     def validate_temperature(cls, v):
         """Validate OpenAI temperature."""
         if not 0.0 <= v <= 2.0:
             raise ValueError("Temperature must be between 0.0 and 2.0")
         return v
     
+    def get_enabled_tools_list(self) -> List[str]:
+        """Convert enabled_tools string to list."""
+        if not self.enabled_tools:
+            return []
+        
+        # Handle JSON array format (e.g., ["tool1","tool2"])
+        if self.enabled_tools.startswith('[') and self.enabled_tools.endswith(']'):
+            try:
+                import json
+                return json.loads(self.enabled_tools)
+            except json.JSONDecodeError:
+                pass
+        
+        # Handle comma-separated format (e.g., "tool1,tool2")
+        return [tool.strip() for tool in self.enabled_tools.split(',') if tool.strip()]
+    
+    def get_admin_users_list(self) -> List[str]:
+        """Convert admin_users string to list."""
+        if not self.admin_users:
+            return []
+        return [user.strip() for user in self.admin_users.split(',') if user.strip()]
+    
     class Config:
-        env_file = ".env"
+        env_file = [".env.example", ".env"]  # Try .env.example first, then .env
         env_prefix = "MCP_"
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields from env file
 
 
 # Global settings instance

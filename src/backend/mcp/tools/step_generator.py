@@ -21,13 +21,22 @@ from openai import AsyncOpenAI
 from pydantic import ValidationError
 
 # Import the main MCP server instance
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
-from ..schemas.tool_schemas import StepGeneratorRequest, StepGeneratorResponse
-from ..config.settings import get_settings
+try:
+    from schemas.tools.step_generator_schemas import StepGeneratorRequest, StepGeneratorResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.step_generator_schemas import StepGeneratorRequest, StepGeneratorResponse
+try:
+    from config.settings import get_settings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import get_settings
 
 # Configure logging
 logger = logging.getLogger(__name__)

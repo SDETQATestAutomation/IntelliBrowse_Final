@@ -12,9 +12,21 @@ from typing import Dict, Any, List, Optional, Set
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 
-from ..config.settings import get_settings
-from ..schemas.context_schemas import UserContext
-from ..core.exceptions import AuthenticationError, AuthorizationError
+try:
+    from config.settings import get_settings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import get_settings
+try:
+    from schemas.context_schemas import UserContext
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.context_schemas import UserContext
+try:
+    from core.exceptions import AuthenticationError, AuthorizationError
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from core.exceptions import AuthenticationError, AuthorizationError
 
 
 @dataclass

@@ -14,7 +14,7 @@ class UserContext(BaseModel):
     """User context information for MCP operations."""
     
     user_id: str = Field(description="Unique user identifier")
-    username: str = Field(description="Username")
+    username: Optional[str] = Field(default=None, description="Username")
     email: Optional[str] = Field(default=None, description="User email")
     roles: List[str] = Field(default=[], description="User roles for RBAC")
     permissions: List[str] = Field(default=[], description="User permissions")
@@ -92,6 +92,7 @@ class SessionContext(BaseModel):
     
     # Session configuration
     preferences: Dict[str, Any] = Field(default={}, description="User session preferences")
+    metadata: Dict[str, Any] = Field(default={}, description="Session metadata including current URL, browser state, etc.")
     
     # Memory and state
     session_memory: Dict[str, Any] = Field(default={}, description="Session memory for context")

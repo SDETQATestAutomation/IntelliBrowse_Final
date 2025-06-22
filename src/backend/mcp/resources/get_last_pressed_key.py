@@ -13,11 +13,19 @@ import structlog
 
 # Add parent directory to path for MCP server import
 sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
 # Import browser session utilities
 sys.path.append(str(Path(__file__).parent.parent / "tools"))
-from browser_session import browser_sessions
+try:
+    from tools.browser_session import browser_sessions
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.browser_session import browser_sessions
 
 logger = structlog.get_logger("intellibrowse.mcp.resources.get_last_pressed_key")
 

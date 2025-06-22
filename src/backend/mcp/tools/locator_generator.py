@@ -11,14 +11,23 @@ import structlog
 from openai import AsyncOpenAI
 
 # Import the main MCP server instance
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
 # Import schemas
-from ..schemas.tool_schemas import LocatorRequest, LocatorResponse
-from ..config.settings import settings
+try:
+    from schemas.tools.locator_generator_schemas import LocatorGeneratorRequest as LocatorRequest, LocatorGeneratorResponse as LocatorResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.locator_generator_schemas import LocatorGeneratorRequest as LocatorRequest, LocatorGeneratorResponse as LocatorResponse
+try:
+    from config.settings import settings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import settings
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.locator_generator")
 

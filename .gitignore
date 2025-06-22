@@ -379,4 +379,22 @@ tramp
 logs/
 
 # Temporary scripts (test/scripts/ directory)
-test/scripts/tmp_* 
+test/scripts/tmp_*
+
+# IntelliBrowse specific
+# Validation and test artifacts
+*validation*.py
+*validation*.json
+mcp_validation_report_*.json
+live_mcp_validation.py
+.env.test
+
+# Screenshots and temporary data
+screenshots/
+data/state_persistence/
+
+# Browser automation artifacts
+*.png
+*.jpg
+*.jpeg
+browser_session_* 

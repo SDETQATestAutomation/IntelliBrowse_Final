@@ -15,18 +15,25 @@ from playwright.async_api import Page, Error as PlaywrightError
 from pydantic import ValidationError
 
 # Import the main MCP server instance
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
 # Import schemas - use absolute import to avoid relative import issues
-sys.path.append(str(Path(__file__).parent.parent / "schemas"))
-from tool_schemas import ScrollPageRequest, ScrollPageResponse
+try:
+    from schemas.tools.scroll_page_schemas import ScrollPageRequest, ScrollPageResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.scroll_page_schemas import ScrollPageRequest, ScrollPageResponse
 
 # Import browser session utilities - use absolute import
-sys.path.append(str(Path(__file__).parent))
-from browser_session import browser_sessions
+try:
+    from tools.browser_session import browser_sessions
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.browser_session import browser_sessions
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.scroll_page")
 

@@ -18,8 +18,16 @@ from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field
 
-from ..config.settings import get_settings
-from ..schemas.context_schemas import SessionContext, TaskContext
+try:
+    from config.settings import get_settings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import get_settings
+try:
+    from schemas.context_schemas import SessionContext, TaskContext
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.context_schemas import SessionContext, TaskContext
 import structlog
 
 logger = structlog.get_logger(__name__)

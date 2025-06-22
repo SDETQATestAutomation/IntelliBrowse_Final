@@ -12,20 +12,40 @@ import tempfile
 from pathlib import Path
 
 # Resource imports
-from ..resources.dom_resource import get_dom_snapshot, get_dom_elements, get_dom_forms
-from ..resources.execution_context_resource import (
+try:
+    from resources.dom_resource import DOMResourceProvider
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.dom_resource import DOMResourceProvider
+try:
+    from resources.execution_context_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.execution_context_resource import (
     get_execution_state, get_environment_config, 
     get_test_runner_context, get_browser_context
 )
-from ..resources.test_data_resource import (
+try:
+    from resources.test_data_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.test_data_resource import (
     get_test_dataset, get_test_fixtures, get_validation_data,
     get_mock_data, get_filtered_dataset
 )
-from ..resources.session_artifact_resource import (
+try:
+    from resources.session_artifact_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.session_artifact_resource import (
     get_session_screenshot, get_session_logs, get_session_report,
     get_session_traces, get_artifact_list
 )
-from ..resources.schema_resource import (
+try:
+    from resources.schema_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.schema_resource import (
     get_api_schema, get_validation_schema, get_config_schema
 )
 

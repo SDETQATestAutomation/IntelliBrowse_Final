@@ -13,13 +13,28 @@ import structlog
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
 # Import the main MCP server instance
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
 # Import schemas
-from ..schemas.tool_schemas import OpenBrowserRequest, OpenBrowserResponse, CloseBrowserRequest, CloseBrowserResponse, NavigateToUrlRequest, NavigateToUrlResponse
+try:
+    from schemas.tools.open_browser_schemas import OpenBrowserRequest, OpenBrowserResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.open_browser_schemas import OpenBrowserRequest, OpenBrowserResponse
+try:
+    from schemas.tools.close_browser_schemas import CloseBrowserRequest, CloseBrowserResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.close_browser_schemas import CloseBrowserRequest, CloseBrowserResponse
+try:
+    from schemas.tools.navigate_to_url_schemas import NavigateToUrlRequest, NavigateToUrlResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.navigate_to_url_schemas import NavigateToUrlRequest, NavigateToUrlResponse
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.browser_session")
 

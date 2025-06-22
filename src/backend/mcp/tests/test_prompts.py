@@ -7,11 +7,31 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 # Prompt imports
-from ..prompts.bug_report_prompt import generate_bug_report_prompt
-from ..prompts.test_scenario_prompt import generate_test_scenario_prompt
-from ..prompts.debug_analysis_prompt import generate_debug_analysis_prompt
-from ..prompts.locator_explanation_prompt import generate_locator_explanation_prompt
-from ..prompts.step_documentation_prompt import generate_step_documentation_prompt
+try:
+    from prompts.bug_report_prompt import generate_bug_report_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.bug_report_prompt import generate_bug_report_prompt
+try:
+    from prompts.test_scenario_prompt import generate_test_scenario_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.test_scenario_prompt import generate_test_scenario_prompt
+try:
+    from prompts.debug_analysis_prompt import generate_debug_analysis_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.debug_analysis_prompt import generate_debug_analysis_prompt
+try:
+    from prompts.locator_explanation_prompt import generate_locator_explanation_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.locator_explanation_prompt import generate_locator_explanation_prompt
+try:
+    from prompts.step_documentation_prompt import generate_step_documentation_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.step_documentation_prompt import generate_step_documentation_prompt
 
 class TestBugReportPrompt:
     """Test cases for Bug Report Prompt template."""

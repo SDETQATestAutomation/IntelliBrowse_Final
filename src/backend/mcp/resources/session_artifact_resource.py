@@ -25,18 +25,28 @@ import zipfile
 import tempfile
 import shutil
 
-from ..config.settings import get_settings
+try:
+    from config.settings import get_settings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import get_settings
 import structlog
 
 logger = structlog.get_logger(__name__)
 
-# Import MCP server instance - will be set by main.py
-mcp_server = None
-
-def set_mcp_server(server):
-    """Set the MCP server instance for resource registration."""
-    global mcp_server
-    mcp_server = server
+# Import MCP server instance from server_instance module
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
+except ImportError:
+    # Handle relative import issues for testing
+    import sys
+    from pathlib import Path
+    current_dir = Path(__file__).parent
+    sys.path.insert(0, str(current_dir.parent))
+    from server_instance import mcp_server
 
 
 class ArtifactMetadata(BaseModel):

@@ -12,7 +12,11 @@ from typing import List
 
 # Add parent directory to path for MCP server import
 sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
 
 @mcp_server.prompt()

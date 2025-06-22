@@ -9,20 +9,42 @@ from unittest.mock import AsyncMock, patch, MagicMock
 from typing import Dict, Any
 
 # Tool imports
-from ..tools.bdd_generator import generate_bdd_scenarios
-from ..tools.locator_generator import generate_locator
-from ..tools.step_generator import generate_step
-from ..tools.selector_healer import heal_selector
-from ..tools.debug_analyzer import analyze_debug_info
+try:
+    from tools.bdd_generator import generate_bdd_scenarios
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.bdd_generator import generate_bdd_scenarios
+try:
+    from tools.locator_generator import generate_locator
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.locator_generator import generate_locator
+try:
+    from tools.step_generator import generate_step
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.step_generator import generate_step
+try:
+    from tools.selector_healer import heal_selector
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.selector_healer import heal_selector
+try:
+    from tools.debug_analyzer import analyze_debug_info
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.debug_analyzer import analyze_debug_info
 
 # Schema imports
-from ..schemas.tool_schemas import (
-    BDDGeneratorRequest, BDDGeneratorResponse,
-    LocatorGeneratorRequest, LocatorGeneratorResponse,
-    StepGeneratorRequest, StepGeneratorResponse,
-    SelectorHealerRequest, SelectorHealerResponse,
-    DebugAnalyzerRequest, DebugAnalyzerResponse
-)
+try:
+    from schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
+from ..schemas.tools.locator_generator_schemas import LocatorGeneratorRequest, LocatorGeneratorResponse
+from ..schemas.tools.step_generator_schemas import StepGeneratorRequest, StepGeneratorResponse
+from ..schemas.tools.selector_healer_schemas import SelectorHealerRequest, SelectorHealerResponse
+from ..schemas.tools.debug_analyzer_schemas import DebugAnalyzerRequest, DebugAnalyzerResponse
 
 class TestBDDGenerator:
     """Test cases for BDD Generator tool."""

@@ -1,23 +1,35 @@
 """
-IntelliBrowse MCP Server - Main Entry Point
+IntelliBrowse MCP Server - Bootstrapping Entrypoint
 
 This is the exclusive AI orchestration layer for IntelliBrowse using the Model Context Protocol.
 All AI/LLM functionality is centralized here, with no AI code elsewhere in the backend.
 """
 
-import asyncio
-import logging
 import os
+import logging
+import anyio
+import structlog
+from dotenv import load_dotenv
+import traceback
+import signal
 import sys
 from pathlib import Path
 
-# Add the project root to Python path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
+# Import the server instance and load primitives
+try:
+    from server import get_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server import get_server
+try:
+    from config.settings import MCPSettings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import MCPSettings
 
-from mcp.server.fastmcp import FastMCP
-from mcp.server import Server
-from mcp.types import Tool, Prompt, Resource
-import structlog
+# Create app instance for external imports
+server = get_server()
+app = server  # Export for external imports
 
 # Configure structured logging
 structlog.configure(
@@ -38,87 +50,81 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 
-logger = structlog.get_logger("intellibrowse.mcp.server")
+logger = structlog.get_logger("intellibrowse.mcp.main")
 
-def setup_logging():
-    """Set up structured logging and return logger."""
-    return logger
 
-def create_mcp_server():
-    """Create and return MCP server instance."""
-    return mcp_server
-
-# Initialize FastMCP server
-mcp_server = FastMCP(name="IntelliBrowseMCP")
-
-# Note: FastMCP automatically handles tool/prompt/resource listing
-# Individual tools, prompts, and resources register themselves via decorators
-
-def import_primitives():
+def main():
     """
-    Dynamically import all primitive modules to register tools, prompts, and resources.
-    This function imports modules from tools/, prompts/, and resources/ directories.
+    Main server startup function with robust error handling and lifecycle management.
+    Uses FastMCP synchronous API for simple stdio transport.
     """
-    import importlib
-    import pkgutil
-    from pathlib import Path
+    settings = None
+    server = None
     
-    mcp_root = Path(__file__).parent
-    
-    # Import all modules from each primitive directory
-    for primitive_type in ['tools', 'prompts', 'resources']:
-        primitive_path = mcp_root / primitive_type
-        
-        if primitive_path.exists():
-            logger.info(f"Loading {primitive_type} from {primitive_path}")
-            
-            # Add the primitive path to sys.path temporarily
-            sys.path.insert(0, str(primitive_path))
-            
-            try:
-                # Import all Python modules in the directory
-                for _, module_name, _ in pkgutil.iter_modules([str(primitive_path)]):
-                    if not module_name.startswith('_'):  # Skip private modules
-                        module_path = f"src.backend.mcp.{primitive_type}.{module_name}"
-                        try:
-                            logger.info(f"Importing {module_path}")
-                            importlib.import_module(module_path)
-                        except Exception as e:
-                            logger.error(f"Failed to import {module_path}: {e}")
-            finally:
-                # Remove the path from sys.path
-                sys.path.remove(str(primitive_path))
-
-async def main():
-    """Main server startup function."""
-    logger.info("Starting IntelliBrowse MCP Server")
-    
-    # Load environment configuration
-    from dotenv import load_dotenv
-    load_dotenv()
-    
-    # Import all primitive modules to register them
     try:
-        import_primitives()
-        logger.info("Successfully loaded all primitives")
+        # Load environment configuration from .env.example or .env
+        env_path = Path(__file__).parent.parent.parent.parent / ".env.example"
+        if env_path.exists():
+            load_dotenv(dotenv_path=env_path)
+            logger.info("Loaded configuration from .env.example")
+        else:
+            env_fallback = Path(__file__).parent.parent.parent.parent / ".env"
+            if env_fallback.exists():
+                load_dotenv(dotenv_path=env_fallback)
+                logger.info("Loaded configuration from .env")
+            else:
+                logger.warning("No .env.example or .env file found, using environment variables")
+        
+        # Initialize settings
+        settings = MCPSettings()
+        
+        # Log server startup parameters
+        logger.info(
+            "Starting IntelliBrowse MCP Server",
+            transport=settings.mcp_transport,
+            enabled_tools=settings.get_enabled_tools_list()
+        )
+        
+        # Get the FastMCP server instance
+        server = get_server()
+        
+        # Register signal handlers for graceful shutdown
+        def signal_handler(signum, frame):
+            logger.info(f"Received signal {signum}, initiating graceful shutdown")
+            raise KeyboardInterrupt
+        
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+        
+        # Run server with correct FastMCP API
+        # FastMCP.run() only accepts transport and mount_path parameters
+        logger.info("Starting FastMCP server with stdio transport")
+        server.run(transport="stdio")
+        
+    except KeyboardInterrupt:
+        logger.info("Server shutdown requested by user (Ctrl+C)")
     except Exception as e:
-        logger.error(f"Error loading primitives: {e}")
-        raise
-    
-    # Get server configuration
-    host = os.getenv("MCP_HOST", "127.0.0.1")
-    port = int(os.getenv("MCP_PORT", "8001"))
-    
-    logger.info(f"MCP Server starting on {host}:{port}")
-    
-    # Run the server
-    await mcp_server.run(host=host, port=port, transport="sse")
+        logger.error(
+            "Server startup failed",
+            error=str(e),
+            traceback=traceback.format_exc()
+        )
+        sys.exit(1)
+    finally:
+        # Graceful cleanup
+        if server:
+            logger.info("Cleaning up server resources")
+            # Any additional cleanup logic would go here
+        
+        logger.info("Server shutdown complete")
+
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        # FastMCP.run() manages its own event loop, so call main() directly
+        main()
     except KeyboardInterrupt:
         logger.info("Server shutdown requested")
     except Exception as e:
-        logger.error(f"Server error: {e}")
+        logger.error(f"Fatal server error: {e}")
         sys.exit(1) 

@@ -11,18 +11,25 @@ import structlog
 from playwright.async_api import Page, Error as PlaywrightError
 
 # Import the main MCP server instance
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 
 # Import schemas - use absolute import to avoid relative import issues
-sys.path.append(str(Path(__file__).parent.parent / "schemas"))
-from tool_schemas import GetPageDomRequest, GetPageDomResponse
+try:
+    from schemas.tools.get_page_dom_schemas import GetPageDomRequest, GetPageDomResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.get_page_dom_schemas import GetPageDomRequest, GetPageDomResponse
 
 # Import browser session utilities - use absolute import
-sys.path.append(str(Path(__file__).parent))
-from browser_session import browser_sessions
+try:
+    from tools.browser_session import browser_sessions
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.browser_session import browser_sessions
 
 logger = structlog.get_logger("intellibrowse.mcp.tools.dom_inspection")
 

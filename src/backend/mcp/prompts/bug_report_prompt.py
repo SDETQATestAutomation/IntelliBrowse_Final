@@ -6,15 +6,14 @@ test steps, and context. It provides a structured format for documenting issues
 found during test execution.
 """
 
-import sys
-from pathlib import Path
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
 
-# Add the MCP server root to Python path
-sys.path.append(str(Path(__file__).parent.parent))
-
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 import structlog
 
 logger = structlog.get_logger("intellibrowse.mcp.prompts.bug_report")

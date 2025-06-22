@@ -5,16 +5,15 @@ This prompt template generates clear documentation for test steps,
 automation commands, and their usage in test scenarios.
 """
 
-import sys
-from pathlib import Path
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 from enum import Enum
 
-# Add the MCP server root to Python path
-sys.path.append(str(Path(__file__).parent.parent))
-
-from main import mcp_server
+try:
+    from server_instance import mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from server_instance import mcp_server
 import structlog
 
 logger = structlog.get_logger("intellibrowse.mcp.prompts.step_documentation")

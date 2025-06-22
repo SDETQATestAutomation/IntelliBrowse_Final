@@ -17,11 +17,21 @@ async def test_schema_validation():
     print("Testing schema validation...")
     
     try:
-        from src.backend.mcp.schemas.context_schemas import SessionContext, TaskContext, UserContext
-        from src.backend.mcp.schemas.tool_schemas import (
-            BDDGeneratorRequest, BDDGeneratorResponse,
-            LocatorGeneratorRequest, LocatorGeneratorResponse
-        )
+try:
+    from schemas.context_schemas import SessionContext, TaskContext, UserContext
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.context_schemas import SessionContext, TaskContext, UserContext
+try:
+    from schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.bdd_generator_schemas import BDDGeneratorRequest, BDDGeneratorResponse
+try:
+    from schemas.tools.locator_generator_schemas import LocatorGeneratorRequest, LocatorGeneratorResponse
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from schemas.tools.locator_generator_schemas import LocatorGeneratorRequest, LocatorGeneratorResponse
         
         # Test SessionContext
         session_data = {
@@ -73,11 +83,31 @@ async def test_tool_imports():
     print("\nTesting tool imports...")
     
     try:
-        from src.backend.mcp.tools.bdd_generator import generate_bdd_scenarios
-        from src.backend.mcp.tools.locator_generator import generate_locator
-        from src.backend.mcp.tools.step_generator import generate_step
-        from src.backend.mcp.tools.selector_healer import heal_selector
-        from src.backend.mcp.tools.debug_analyzer import analyze_debug_info
+try:
+    from tools.bdd_generator import generate_bdd_scenarios
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.bdd_generator import generate_bdd_scenarios
+try:
+    from tools.locator_generator import generate_locator
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.locator_generator import generate_locator
+try:
+    from tools.step_generator import generate_step
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.step_generator import generate_step
+try:
+    from tools.selector_healer import heal_selector
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.selector_healer import heal_selector
+try:
+    from tools.debug_analyzer import analyze_debug_info
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from tools.debug_analyzer import analyze_debug_info
         
         print("✅ All 5 tools imported successfully")
         
@@ -106,11 +136,31 @@ async def test_prompt_imports():
     print("\nTesting prompt imports...")
     
     try:
-        from src.backend.mcp.prompts.bug_report_prompt import generate_bug_report_prompt
-        from src.backend.mcp.prompts.test_scenario_prompt import generate_test_scenario_prompt
-        from src.backend.mcp.prompts.debug_analysis_prompt import generate_debug_analysis_prompt
-        from src.backend.mcp.prompts.locator_explanation_prompt import generate_locator_explanation_prompt
-        from src.backend.mcp.prompts.step_documentation_prompt import generate_step_documentation_prompt
+try:
+    from prompts.bug_report_prompt import generate_bug_report_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.bug_report_prompt import generate_bug_report_prompt
+try:
+    from prompts.test_scenario_prompt import generate_test_scenario_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.test_scenario_prompt import generate_test_scenario_prompt
+try:
+    from prompts.debug_analysis_prompt import generate_debug_analysis_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.debug_analysis_prompt import generate_debug_analysis_prompt
+try:
+    from prompts.locator_explanation_prompt import generate_locator_explanation_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.locator_explanation_prompt import generate_locator_explanation_prompt
+try:
+    from prompts.step_documentation_prompt import generate_step_documentation_prompt
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from prompts.step_documentation_prompt import generate_step_documentation_prompt
         
         print("✅ All 5 prompts imported successfully")
         
@@ -145,20 +195,40 @@ async def test_resource_imports():
     print("\nTesting resource imports...")
     
     try:
-        from src.backend.mcp.resources.dom_resource import get_dom_snapshot, get_dom_elements, get_dom_forms
-        from src.backend.mcp.resources.execution_context_resource import (
+try:
+    from resources.dom_resource import get_dom_snapshot, get_dom_elements, get_dom_forms
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.dom_resource import get_dom_snapshot, get_dom_elements, get_dom_forms
+try:
+    from resources.execution_context_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.execution_context_resource import (
             get_execution_state, get_environment_config,
             get_test_runner_context, get_browser_context
         )
-        from src.backend.mcp.resources.test_data_resource import (
+try:
+    from resources.test_data_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.test_data_resource import (
             get_test_dataset, get_test_fixtures, get_validation_data,
             get_mock_data, get_filtered_dataset
         )
-        from src.backend.mcp.resources.session_artifact_resource import (
+try:
+    from resources.session_artifact_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.session_artifact_resource import (
             get_session_screenshot, get_session_logs, get_session_report,
             get_session_traces, get_artifact_list
         )
-        from src.backend.mcp.resources.schema_resource import (
+try:
+    from resources.schema_resource import (
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from resources.schema_resource import (
             get_api_schema, get_validation_schema, get_config_schema
         )
         
@@ -187,7 +257,11 @@ async def test_config_system():
     print("\nTesting configuration system...")
     
     try:
-        from src.backend.mcp.config.settings import MCPSettings
+try:
+    from config.settings import MCPSettings
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from config.settings import MCPSettings
         
         # Test with minimal configuration using correct field names
         test_config = MCPSettings(
@@ -223,7 +297,11 @@ async def test_main_server():
     print("\nTesting main server creation...")
     
     try:
-        from src.backend.mcp.main import setup_logging
+try:
+    from main import setup_logging
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from main import setup_logging
         
         # Test logging setup
         logger = setup_logging()
@@ -231,7 +309,11 @@ async def test_main_server():
         print("✅ Logging setup validated")
         
         # Test that create_mcp_server function exists
-        from src.backend.mcp.main import create_mcp_server
+try:
+    from main import create_mcp_server
+except ImportError:
+    # Fallback for when running directly from mcp directory
+    from main import create_mcp_server
         assert callable(create_mcp_server)
         print("✅ MCP server creation function available")
         
